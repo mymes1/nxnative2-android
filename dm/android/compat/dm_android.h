@@ -254,3 +254,4 @@ int dm_android_fcntl(int fd, int cmd, ...);
 // ---- strings ----
 size_t strlcpy(char *, const char *, size_t);
 size_t strlcat(char *, const char *, size_t);
+int mergesort(void *base, size_t nel, size_t size, int (*compar)(const void *, const void *));   // BSD libc; bionic lacks it (apple_stubs.c)

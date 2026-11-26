@@ -66,6 +66,23 @@ add_library(vpx STATIC ${VPX_C})
 target_include_directories(vpx PRIVATE ${DM}/third_party/libvpx ${DM}/third_party/libvpx/config)
 target_compile_options(vpx PRIVATE -O2 -w -fvisibility=hidden)
 
+# dav1d, the AV1 decoder (hle_movie_av1.c): its arm64 NEON assembly and the per-bit-depth
+# wrappers in config/tmpl (the *_tmpl.c are not built on their own; the *_tmpl.S and util.S
+# assembly others include are not built on their own). The config.h the sources include is the
+# Android one in dm/android/dav1d (the checked-in third_party config/config.h is macOS/Meson).
+set(DAV1D ${DM}/third_party/dav1d)
+file(GLOB DAV1D_C ${DAV1D}/src/*.c)
+list(FILTER DAV1D_C EXCLUDE REGEX "_tmpl\\.c$")
+list(APPEND DAV1D_C ${DAV1D}/src/arm/cpu.c)
+file(GLOB DAV1D_TMPL ${DAV1D}/config/tmpl/*.c)
+list(APPEND DAV1D_C ${DAV1D_TMPL})
+file(GLOB DAV1D_S ${DAV1D}/src/arm/64/*.S)
+list(FILTER DAV1D_S EXCLUDE REGEX "_tmpl\\.S$")
+list(FILTER DAV1D_S EXCLUDE REGEX "/util\\.S$")
+add_library(dav1d STATIC ${DAV1D_C} ${DAV1D_S})
+target_include_directories(dav1d PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/dav1d ${DAV1D} ${DAV1D}/include ${DAV1D}/config)
+target_compile_options(dav1d PRIVATE -O2 -fvisibility=hidden -fomit-frame-pointer -fno-align-functions)
+
 # The replay records every draw on the game's render thread (descriptor writes, pipeline and view lookups, vertex and uniform copies): -O2 there, after the target's -O1
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/gfx_vk.c PROPERTIES COMPILE_OPTIONS "-O2")
 set_source_files_properties(${DM}/gfx/nvn/hle_nvn.c PROPERTIES COMPILE_OPTIONS "-fno-omit-frame-pointer")   # frame records: DM_NVN_SIZE_TRACE walks the game's call chain from them
@@ -73,7 +90,7 @@ add_library(dmcore OBJECT ${HOST_C} ${GFX_C} ${ANDROID_C} ${ASM_ELF})
 add_dependencies(dmcore game_profile)
 target_include_directories(dmcore PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/compat ${DM}/host ${DM}/gfx/nvn/include ${DM}/gfx/nvn ${DM}/gfx/tex ${DM}/third_party/vulkan-headers/include
-  ${GEN}/${GAME} ${DM}/third_party/libvpx ${DM}/third_party/stb_vorbis)
+  ${GEN}/${GAME} ${DM}/third_party/libvpx ${DM}/third_party/stb_vorbis ${DAV1D}/include)
 # x18 holds the guest thread's slot block (dm.h dm_slot_get): the compiler must never use it (Android reserves it by default; stated anyway)
 target_compile_options(dmcore PRIVATE
   $<$<COMPILE_LANGUAGE:C>:-include dm_android.h -std=gnu11 -O1 -g -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable
@@ -81,7 +98,7 @@ target_compile_options(dmcore PRIVATE
   -ffixed-x18 -fvisibility=hidden -fPIC -march=armv8.2-a+lse)
 target_compile_definitions(dmcore PRIVATE DM_ANDROID=1)
 
-set(DM_LIBS vpx log android aaudio mediandk vulkan m dl)
+set(DM_LIBS vpx dav1d log android aaudio mediandk vulkan m dl)
 
 set(GLUE ${ANDROID_NDK}/sources/android/native_app_glue)
 add_library(dmhost_app SHARED $<TARGET_OBJECTS:dmcore> ${CMAKE_CURRENT_SOURCE_DIR}/front_android.c ${CMAKE_CURRENT_SOURCE_DIR}/nvn_demo.c ${GLUE}/android_native_app_glue.c)

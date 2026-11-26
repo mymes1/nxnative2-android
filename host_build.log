@@ -1,0 +1,310 @@
+-- The C compiler identification is Clang 19.0.1
+-- The ASM compiler identification is Clang with GNU-like command-line
+-- Found assembler: /home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python3 (found version "3.12.16") found components: Interpreter
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+CMake Warning (unused-cli):
+  Manually-specified variables were not used by the project:
+
+    GAME
+
+
+-- Build files have been written to: /home/runner/work/nxnative2-android/nxnative2-android/build/host
+ninja: Entering directory `build/host'
+[1/263] runtime game profile shim
+[2/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/alloccommon.c.o
+[3/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/loopfilter_arm.c.o
+[4/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/copymem_neon.c.o
+[5/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/dequant_idct_neon.c.o
+[6/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/dequantizeb_neon.c.o
+[7/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/dc_only_idct_add_neon.c.o
+[8/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/bilinearpredict_neon.c.o
+[9/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/iwalsh_neon.c.o
+[10/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/loopfiltersimpleverticaledge_neon.c.o
+[11/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/shortidct4x4llm_neon.c.o
+[12/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/blockd.c.o
+[13/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/loopfiltersimplehorizontaledge_neon.c.o
+[14/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/dequantize.c.o
+[15/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/idct_blk_neon.c.o
+[16/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/mbloopfilter_neon.c.o
+[17/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/entropymv.c.o
+[18/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/vp8_loopfilter_neon.c.o
+[19/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/entropy.c.o
+[20/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/entropymode.c.o
+[21/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/findnearmv.c.o
+[22/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/extend.c.o
+[23/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/generic/systemdependent.c.o
+[24/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/idctllm.c.o
+[25/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/idct_blk.c.o
+[26/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/modecont.c.o
+[27/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/mbpitch.c.o
+[28/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/quant_common.c.o
+[29/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/reconintra.c.o
+[30/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/sixtappredict_neon.c.o
+[31/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/rtcd.c.o
+[32/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/reconintra4x4.c.o
+[33/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/setupintrarecon.c.o
+[34/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/swapyv12buffer.c.o
+[35/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/treecoder.c.o
+[36/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/filter.c.o
+[37/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/loopfilter_filters.c.o
+[38/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/reconinter.c.o
+[39/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/dboolhuff.c.o
+[40/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/vp8_loopfilter.c.o
+[41/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/detokenize.c.o
+[42/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/onyxd_if.c.o
+[43/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/vp8_dx_iface.c.o
+[44/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/decodemv.c.o
+[45/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/threading.c.o
+[46/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_blockd.c.o
+[47/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_alloccommon.c.o
+[48/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_common_data.c.o
+[49/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_entropy.c.o
+[50/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/arm/neon/vp9_iht4x4_add_neon.c.o
+[51/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_filter.c.o
+[52/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_entropymode.c.o
+[53/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_entropymv.c.o
+[54/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/decodeframe.c.o
+[55/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_frame_buffers.c.o
+[56/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_pred_common.c.o
+[57/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/arm/neon/vp9_iht16x16_add_neon.c.o
+[58/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_quant_common.c.o
+[59/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_idct.c.o
+[60/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_mvref_common.c.o
+[61/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_rtcd.c.o
+[62/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_scale.c.o
+[63/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/arm/neon/vp9_iht8x8_add_neon.c.o
+[64/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_seg_common.c.o
+[65/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_loopfilter.c.o
+[66/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_scan.c.o
+[67/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_reconinter.c.o
+[68/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_reconintra.c.o
+[69/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_tile_common.c.o
+[70/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_dsubexp.c.o
+[71/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_decoder.c.o
+[72/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_job_queue.c.o
+[73/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_detokenize.c.o
+[74/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_thread_common.c.o
+[75/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/vp9_iface_common.c.o
+[76/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_codec.c.o
+[77/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_decoder.c.o
+[78/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_image.c.o
+[79/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/vp9_dx_iface.c.o
+[80/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_encoder.c.o
+[81/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_decodemv.c.o
+[82/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_1_add_neon.c.o
+[83/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct16x16_1_add_neon.c.o
+[84/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_34_add_neon.c.o
+[85/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct16x16_add_neon.c.o
+[86/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct4x4_1_add_neon.c.o
+[87/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_decodeframe.c.o
+[88/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct8x8_1_add_neon.c.o
+[89/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct4x4_add_neon.c.o
+[90/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_135_add_neon.c.o
+[91/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct8x8_add_neon.c.o
+[92/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve_copy_neon.c.o
+[93/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve_neon.c.o
+[94/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_add_neon.c.o
+[95/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve_avg_neon.c.o
+[96/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/bitreader_buffer.c.o
+[97/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/bitreader.c.o
+[98/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_scaled_convolve8_neon.c.o
+[99/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve8_neon.c.o
+[100/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/prob.c.o
+[101/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/loopfilter_neon.c.o
+[102/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/skin_detection.c.o
+[103/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/vpx_dsp_rtcd.c.o
+[104/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/loopfilter.c.o
+[105/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_ports/aarch64_cpudetect.c.o
+[106/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_mem/vpx_mem.c.o
+[107/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/gen_scalers.c.o
+[108/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/intrapred_neon.c.o
+[109/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/vpx_convolve.c.o
+[110/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/yv12config.c.o
+[111/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/vpx_scale.c.o
+[112/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/yv12extend.c.o
+[113/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/vpx_scale_rtcd.c.o
+[114/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_util/vpx_write_yuv_frame.c.o
+[115/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_util/vpx_thread.c.o
+[116/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/inv_txfm.c.o
+[117/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/cpu.c.o
+[118/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/ctx.c.o
+[119/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/dequant_tables.c.o
+[120/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/data.c.o
+[121/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/intra_edge.c.o
+[122/263] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/intrapred.c.o
+[123/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/getbits.c.o
+[124/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/log.c.o
+[125/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/mem.c.o
+[126/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/msac.c.o
+[127/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/lib.c.o
+[128/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/lf_mask.c.o
+[129/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/pal.c.o
+[130/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/itx_1d.c.o
+[131/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/cdf.c.o
+[132/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/ref.c.o
+[133/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/picture.c.o
+[134/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/tables.c.o
+[135/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/qm.c.o
+[136/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/scan.c.o
+[137/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/warpmv.c.o
+[138/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/obu.c.o
+[139/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/cpu.c.o
+[140/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/wedge.c.o
+[141/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/cdef_8bpc.c.o
+[142/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/cdef_16bpc.c.o
+[143/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/thread_task.c.o
+[144/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/cdef_apply_16bpc.c.o
+[145/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/fg_apply_16bpc.c.o
+[146/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/refmvs.c.o
+[147/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/fg_apply_8bpc.c.o
+[148/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/cdef_apply_8bpc.c.o
+[149/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/ipred_16bpc.c.o
+[150/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/ipred_prepare_16bpc.c.o
+[151/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/decode.c.o
+[152/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/filmgrain_16bpc.c.o
+[153/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/ipred_prepare_8bpc.c.o
+[154/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/ipred_8bpc.c.o
+[155/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/filmgrain_8bpc.c.o
+[156/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/loopfilter_16bpc.c.o
+[157/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/loopfilter_8bpc.c.o
+[158/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/lf_apply_16bpc.c.o
+[159/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/itx_8bpc.c.o
+[160/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/lf_apply_8bpc.c.o
+[161/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/lr_apply_16bpc.c.o
+[162/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/lr_apply_8bpc.c.o
+[163/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/itx_16bpc.c.o
+[164/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/looprestoration_8bpc.c.o
+[165/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/cdef.S.o
+[166/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/looprestoration_16bpc.c.o
+[167/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/mc_8bpc.c.o
+[168/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/cdef16.S.o
+[169/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/filmgrain16.S.o
+[170/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/filmgrain.S.o
+[171/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/mc_16bpc.c.o
+[172/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/ipred.S.o
+[173/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/itx.S.o
+[174/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/ipred16.S.o
+[175/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/itx16.S.o
+[176/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/loopfilter.S.o
+[177/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/loopfilter16.S.o
+[178/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/looprestoration16.S.o
+[179/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/looprestoration.S.o
+[180/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/looprestoration_common.S.o
+[181/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/mc16_sve.S.o
+[182/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/mc16.S.o
+[183/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/mc.S.o
+[184/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/mc_dotprod.S.o
+[185/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/refmvs.S.o
+[186/263] Building ASM object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/src/arm/64/msac.S.o
+[187/263] Generating gen/asm/entry.S
+[188/263] Generating gen/asm/nvn_entry.S
+[189/263] Linking C static library libvpx.a
+[190/263] Building C object CMakeFiles/nxloader.dir/loader.c.o
+[191/263] Linking C shared library libnxloader.so
+[192/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/recon_16bpc.c.o
+[193/263] Generating gen/asm/nvn_thunks.S
+[194/263] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c.o
+FAILED: [code=1] CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c.o 
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android29 --sysroot=/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DDM_ANDROID=1 -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/compat -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../host -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/nvn/include -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/nvn -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/tex -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/vulkan-headers/include -I/home/runner/work/nxnative2-android/nxnative2-android/build/host/gen -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/libvpx -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/stb_vorbis -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/dav1d/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fPIC -fsigned-char -include dm_android.h -std=gnu11 -O1 -g -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-deprecated-declarations -Wno-gnu-folding-constant -Wno-multichar -Wno-four-char-constants -Wno-unknown-pragmas -Wno-missing-braces -ffixed-x18 -fvisibility=hidden -fPIC -march=armv8.2-a+lse -MD -MT CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c.o -MF CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c.o.d -o CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c.o -c /home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:22:14: error: static declaration of 'dup' follows non-static declaration
+   22 | static char *dup(const char *s) {
+      |              ^
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:5: note: previous declaration is here
+  347 | int dup(int __old_fd);
+      |     ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:44:26: error: incompatible pointer to integer conversion passing 'char[9]' to parameter of type 'int' [-Wint-conversion]
+   44 |     g->ue_fps_cvar = dup("t.MaxFPS");   // ue_fps_cvar: Unreal's frame-limit console variable
+      |                          ^~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:44:20: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+   44 |     g->ue_fps_cvar = dup("t.MaxFPS");   // ue_fps_cvar: Unreal's frame-limit console variable
+      |                    ^ ~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:53:23: error: incompatible pointer to integer conversion passing 'const char *' to parameter of type 'int' [-Wint-conversion]
+   53 |     arr[(*n)++] = dup(tok);
+      |                       ^~~
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:53:17: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+   53 |     arr[(*n)++] = dup(tok);
+      |                 ^ ~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:100:47: error: incompatible pointer to integer conversion passing 'char *' to parameter of type 'int' [-Wint-conversion]
+  100 |                 g_game.build_id[nbuild] = dup(main_bid[0] ? main_bid : (ver ? ver : ""));
+      |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:100:41: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  100 |                 g_game.build_id[nbuild] = dup(main_bid[0] ? main_bid : (ver ? ver : ""));
+      |                                         ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:101:49: error: incompatible pointer to integer conversion passing 'char[256]' to parameter of type 'int' [-Wint-conversion]
+  101 |                 g_game.build_mods[nbuild] = dup(mods);
+      |                                                 ^~~~
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:101:43: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  101 |                 g_game.build_mods[nbuild] = dup(mods);
+      |                                           ^ ~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:105:46: error: incompatible pointer to integer conversion passing 'char[40]' to parameter of type 'int' [-Wint-conversion]
+  105 |                 g_game.ver_build[nver] = dup(main_bid);
+      |                                              ^~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:105:40: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  105 |                 g_game.ver_build[nver] = dup(main_bid);
+      |                                        ^ ~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:106:45: error: incompatible pointer to integer conversion passing 'char *' to parameter of type 'int' [-Wint-conversion]
+  106 |                 g_game.ver_name[nver] = dup(disp ? disp : "1.0.0");
+      |                                             ^~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:106:39: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  106 |                 g_game.ver_name[nver] = dup(disp ? disp : "1.0.0");
+      |                                       ^ ~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:109:84: error: incompatible pointer to integer conversion passing 'char *' to parameter of type 'int' [-Wint-conversion]
+  109 |         } else if (!strcmp(key, "id") || !strcmp(key, "title_id")) g_game.id = dup(p);
+      |                                                                                    ^
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:109:78: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  109 |         } else if (!strcmp(key, "id") || !strcmp(key, "title_id")) g_game.id = dup(p);
+      |                                                                              ^ ~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:110:58: error: incompatible pointer to integer conversion passing 'char *' to parameter of type 'int' [-Wint-conversion]
+  110 |         else if (!strcmp(key, "name")) g_game.name = dup(p);
+      |                                                          ^
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:110:52: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  110 |         else if (!strcmp(key, "name")) g_game.name = dup(p);
+      |                                                    ^ ~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:112:74: error: incompatible pointer to integer conversion passing 'char *' to parameter of type 'int' [-Wint-conversion]
+  112 |         else if (!strcmp(key, "romfs_marker")) g_game.romfs_marker = dup(p);
+      |                                                                          ^
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/include/unistd.h:347:13: note: passing argument to parameter '__old_fd' here
+  347 | int dup(int __old_fd);
+      |             ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/game_profile_rt.c:112:68: error: incompatible integer to pointer conversion assigning to 'const char *' from 'int' [-Wint-conversion]
+  112 |         else if (!strcmp(key, "romfs_marker")) g_game.romfs_marker = dup(p);
+      |                                                                    ^ ~~~~~~
+fatal error: too many errors emitted, stopping now [-ferror-limit=]
+20 errors generated.
+[195/263] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_account.c.o
+[196/263] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/crash.c.o
+[197/263] Building C object CMakeFiles/dav1d.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/dav1d/config/tmpl/recon_8bpc.c.o
+[198/263] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.c.o
+[199/263] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c.o
+ninja: build stopped: subcommand failed.

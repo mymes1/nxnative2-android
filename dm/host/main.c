@@ -2,10 +2,12 @@
 #include "dm.h"
 #include "front.h"
 #include "../gfx/nvn/dmsh_chain.h"
+#ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
+#include <sys/sysctl.h>
+#endif
 #include <stdatomic.h>
 #include <sys/resource.h>
-#include <sys/sysctl.h>
 #include <sys/time.h>
 #include <unistd.h>
 void probe_install(void); void hid_keys_init(void); void stubs_report(void); void crash_install(void); void guest_thread_init(void); void guest_gate_stack(int own_stack); uint32_t svc_thread_main_init(void);
@@ -50,11 +52,16 @@ static void flags_init(void) {
 
 // Zero point of the boot timeline = process creation time (p_starttime from sysctl KERN_PROC_PID, wall clock) converted to the now_ns monotonic time base; same definition on Mac / iOS
 static uint64_t proc_start_mono_ns(void) {
+#ifdef __APPLE__
     struct kinfo_proc kp; size_t n = sizeof kp; int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_PID, getpid()};
     uint64_t mono = now_ns(); struct timeval tv; gettimeofday(&tv, NULL);
     if (sysctl(mib, 4, &kp, &n, NULL, 0) || !n) return mono;
     int64_t age = (int64_t)(tv.tv_sec - kp.kp_proc.p_starttime.tv_sec) * 1000000000ll + (tv.tv_usec - kp.kp_proc.p_starttime.tv_usec) * 1000ll;
     return age > 0 ? mono - (uint64_t)age : mono;
+#else
+    // Android: no sysctl KERN_PROC_PID; now_ns() at preload start is the process creation time in the monotonic base
+    return now_ns();
+#endif
 }
 
 #ifdef DM_GAME_MULTI
@@ -113,8 +120,14 @@ static void host_preload(int argc, char **argv) {
     }
     crash_install();
     {   // Which build this is: the commit the packer stamped into the app (DMCommit; a run outside an app has none), the shader chain the host loads, the profile
-        CFBundleRef b = CFBundleGetMainBundle(); CFTypeRef c = b ? CFBundleGetValueForInfoDictionaryKey(b, CFSTR("DMCommit")) : NULL; char cs[64] = "not recorded";
+        char cs[64] = "not recorded";
+#ifdef __APPLE__
+        CFBundleRef b = CFBundleGetMainBundle(); CFTypeRef c = b ? CFBundleGetValueForInfoDictionaryKey(b, CFSTR("DMCommit")) : NULL;
         if (c && CFGetTypeID(c) == CFStringGetTypeID()) CFStringGetCString((CFStringRef)c, cs, sizeof cs, kCFStringEncodingUTF8);
+#else
+        // Android has no CoreFoundation: the packer sets DMCommit in the environment (the app's launcher)
+        const char *e = getenv("DMCommit"); if (e && *e) snprintf(cs, sizeof cs, "%s", e);
+#endif
         LOG("build: commit %s, shader chain %s, profile %s", cs, DMSH_CHAIN, DM_GAME_ID);
     }
     const char *race = getenv("DM_TEST_KEYRACE");

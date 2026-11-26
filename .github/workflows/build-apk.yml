@@ -47,7 +47,7 @@ defaults:
 # Actions are pinned to commit SHAs (the tag in the comment): a tag can be moved, a SHA cannot.
 jobs:
   build-apk:
-    name: Build the APK (${{ env.GAME }}, GPU ${{ env.GPU }})
+    name: Build the APK (${{ github.event.inputs.game || '0400921025B32000' }}, GPU ${{ github.event.inputs.gpu || 'mali-g57-mc2' }})
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
@@ -104,14 +104,14 @@ jobs:
           python dm/android/tests/selftest_nso.py "$ndk_bin/clang" "$ndk_bin/llvm-objcopy" build/selftest/main.nso
           DM_GAME="$GAME" DM_TARGET=android python dm/tools/patch_nso.py build/selftest/main.nso build/selftest/patched main
 
-      - name: The demo's shaders, packed for the ${{ env.GPU }}
+      - name: The demo's shaders, packed for the ${{ github.event.inputs.gpu || 'mali-g57-mc2' }}
         run: |
           set -e
           python dm/android/tests/synth_shaders.py build/demo
           python dm/android/tools/spv_build.py build/demo/pkg build/demo/spv \
             --xlate dm/gfx/tools/dmsh_xlate_bin/dmsh_xlate.dll --facts build/demo/facts.tsv --gpu "$GPU"
 
-      - name: Check the packed shaders for vulkan1.1 (the ${{ env.GPU }}'s rule)
+      - name: Check the packed shaders for vulkan1.1 (the ${{ github.event.inputs.gpu || 'mali-g57-mc2' }}'s rule)
         run: |
           set -e
           spirv_val="$ANDROID_NDK/shader-tools/linux-x86_64/spirv-val"
@@ -131,6 +131,6 @@ jobs:
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9   # v7.0.2
         with:
-          name: nxnative-apk-${{ env.GAME }}-${{ env.GPU }}
+          name: nxnative-apk-${{ github.event.inputs.game || '0400921025B32000' }}-${{ github.event.inputs.gpu || 'mali-g57-mc2' }}
           path: nxnative.apk
           retention-days: 30

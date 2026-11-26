@@ -155,6 +155,7 @@ void guest_clock_freeze(int on);
 void guest_clock_freeze_for(int reason, int on);   // Freeze by reason (1 background, 2 system keyboard); see hle_os.c
 void guest_clock_read_wait(void);     // A guest read of the system counter: waits while the app is in the background (hle_os.c)
 void dm_guest_frame_tick(void);        // Called on every present (hle_nvn.c): when DM_DETCLOCK is on, advances the guest clock by one fixed step
+void dm_cheats_init(void);             // Called once in host_preload after loading the modules (main.c): reads DM_CHEATS and friends, loads the build's file (hle_cheats.c; no-op on Android, apple_stubs.c)
 uint64_t dm_nvn_frame_count(void);
 uint64_t dm_nvn_sub_cpu_ns(void);     // Cumulative CPU nanoseconds of submit (excluding present)
 void dm_backtrace(uint64_t fp);

@@ -31,3 +31,8 @@ int mergesort(void *base, size_t nel, size_t size, int (*compar)(const void *, c
     free(q);
     return 0;
 }
+// dm_cheats_init (hle_cheats.c): the Atmosphère cheat-file loader. hle_cheats.c is test-only and
+// is excluded from the Android host build (its DM_CHEAT_* macros and dm_guest_heap_* are not defined
+// for a host build, and nothing on Android calls its interface). main.c still calls dm_cheats_init
+// unconditionally, so provide a no-op here: no cheats on Android.
+void dm_cheats_init(void) {}

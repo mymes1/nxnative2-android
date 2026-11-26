@@ -102,6 +102,9 @@
 
 #define PIC 3
 
-#define PREFIX 1
+// PREFIX is intentionally not defined: it makes the assembly EXTERN macro emit a leading
+// underscore (_dav1d_...), the Mach-O symbol convention. On ELF/Android C symbols have no
+// leading underscore, so defining PREFIX here would make the .S files emit _dav1d_* while
+// the C code references dav1d_* (undefined symbols at link).
 
 #define TRIM_DSP_FUNCTIONS 1

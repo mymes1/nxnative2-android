@@ -242,7 +242,8 @@ OpFunctionEnd
         py_out, py_wr, py_add = spv_android.spv_readonly_words(list(struct.unpack('<%dI' % (len(data) // 4), data)))
         self.assertIsNotNone(c_out)
         self.assertEqual((py_out is None, py_wr, py_add), (False, c_wr, len(decorated(c_out))))
-        self.assertEqual(py_out, c_out)
+        # py_out is a list of words, c_out is the same words as bytes: pack before comparing
+        self.assertEqual(struct.pack('<%dI' % len(py_out), *py_out), c_out)
 
     def test_port_output_is_valid_vulkan11(self):
         data = self.asm(self.VS_TEXT, 'vs')

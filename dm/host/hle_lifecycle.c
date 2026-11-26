@@ -11,24 +11,28 @@
 void hlecount_flush(void);
 #ifndef __APPLE__
 // No libdispatch: the 1.5 s fallback is a thread of its own, and SIGTERM is taken by a thread that waits for it with sigwait (the signal is blocked in every thread, which inherit the mask)
-static void *exit_fallback(void *p) { (void)p; usleep(1500000); LOG("[RED] graceful exit not done in 1.5 seconds, exiting at once"); _exit(0); }
+static void (*g_exit_then)(void *); static void *g_exit_arg;
+static void *exit_fallback(void *p) { (void)p; usleep(1500000); LOG("[RED] graceful exit not done in 1.5 seconds, exiting at once"); if (g_exit_then) g_exit_then(g_exit_arg); _exit(0); }
 static void *term_waiter(void *p) { sigset_t *set = p; int sig; while (sigwait(set, &sig)) {} dm_host_shutdown("SIGTERM"); return NULL; }
 #endif
-void dm_host_shutdown(const char *why) {
+void dm_host_shutdown_then(const char *why, void (*then)(void *), void *arg) {
     static _Atomic int once; if (atomic_exchange(&once, 1)) return;
     uint64_t t0 = now_ns(); LOG("received %s: graceful exit", why);
 #ifdef __APPLE__
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1500 * NSEC_PER_MSEC), dispatch_get_global_queue(QOS_CLASS_USER_INTERACTIVE, 0), ^{
-        LOG("[RED] graceful exit not done in 1.5 seconds, exiting at once"); _exit(0); });
+        LOG("[RED] graceful exit not done in 1.5 seconds, exiting at once"); if (then) then(arg); _exit(0); });
 #else
+    g_exit_then = then; g_exit_arg = arg;
     { pthread_t th; pthread_create(&th, NULL, exit_fallback, NULL); pthread_detach(th); }
 #endif
     hlecount_flush();                               // DM_HLECOUNT: _exit does not run atexit, write a copy here
     dm_audio_suspend(1);
     dm_gfx_suspend(1);
     LOG("graceful exit done (%.3f s)", (now_ns() - t0) / 1e9);
+    if (then) then(arg);   // oe::ExecuteProgram: execve of the next program; returns only if it failed
     _exit(0);
 }
+void dm_host_shutdown(const char *why) { dm_host_shutdown_then(why, NULL, NULL); }
 void dm_term_install(void) {
 #ifndef __APPLE__
     static sigset_t set; sigemptyset(&set); sigaddset(&set, SIGTERM); pthread_sigmask(SIG_BLOCK, &set, NULL);

@@ -1,0 +1,16 @@
+test_default_target_leaves_it_alone (dm.tools.tests.test_spv_mali.SpvAndroidGpu.test_default_target_leaves_it_alone) ... ok
+test_mali_target_decorates_the_vertex_shader (dm.tools.tests.test_spv_mali.SpvAndroidGpu.test_mali_target_decorates_the_vertex_shader) ... ok
+test_port_agrees_with_c_on_the_fixture (dm.tools.tests.test_spv_mali.SpvReadonlyCrossCheck.test_port_agrees_with_c_on_the_fixture) ... ok
+test_port_output_is_valid_vulkan11 (dm.tools.tests.test_spv_mali.SpvReadonlyCrossCheck.test_port_output_is_valid_vulkan11) ... ok
+test_already_decorated_and_idempotent (dm.tools.tests.test_spv_mali.SpvReadonlyWords.test_already_decorated_and_idempotent) ... ok
+test_compute_stage_is_not_a_vertex_pipeline (dm.tools.tests.test_spv_mali.SpvReadonlyWords.test_compute_stage_is_not_a_vertex_pipeline) ... ok
+test_fragment_shader_left_alone (dm.tools.tests.test_spv_mali.SpvReadonlyWords.test_fragment_shader_left_alone) ... ok
+test_read_only_buffer_decorated_written_one_left (dm.tools.tests.test_spv_mali.SpvReadonlyWords.test_read_only_buffer_decorated_written_one_left) ... ok
+test_a_games_vertex_shaders (dm.tools.tests.test_spv_readonly.SpvReadonly.test_a_games_vertex_shaders) ... skipped 'DM_SPV_DIR not set'
+test_fragment_shader_left_alone (dm.tools.tests.test_spv_readonly.SpvReadonly.test_fragment_shader_left_alone) ... ok
+test_read_only_buffer_decorated_written_one_left (dm.tools.tests.test_spv_readonly.SpvReadonly.test_read_only_buffer_decorated_written_one_left) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 7.682s
+
+OK (skipped=1)

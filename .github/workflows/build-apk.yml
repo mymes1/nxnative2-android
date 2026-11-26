@@ -96,51 +96,51 @@ jobs:
       # the pass over a game's packed shaders (dm/tools/tests/test_spv_readonly.py, test_spv_mali.py).
       - name: Shader pass tests (with the NDK)
         run: |
-          set -o pipefail
+          set -eo pipefail
           python -m unittest dm.tools.tests.test_spv_mali dm.tools.tests.test_spv_readonly -v 2>&1 | tee /tmp/shader_tests.log
 
       - name: The game's host (dm/android, CMake + the NDK)
         run: |
-          set -e
+          set -eo pipefail
           cmake -G Ninja -S dm/android -B build/host \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK/build/cmake/android.toolchain.cmake" \
             -DCMAKE_MAKE_PROGRAM="$ANDROID_CMAKE/bin/ninja" \
             -DANDROID_ABI=arm64-v8a -DANDROID_PLATFORM=android-29 \
-            -DGAME="$GAME" -DPython3_EXECUTABLE="$(which python3)"
-          ninja -C build/host dmhost_app nxloader
+            -DGAME="$GAME" -DPython3_EXECUTABLE="$(which python3)" 2>&1 | tee /tmp/host_build.log
+          ninja -C build/host dmhost_app nxloader 2>&1 | tee -a /tmp/host_build.log
 
       - name: The self test (a synthetic module, rewritten for Android)
         run: |
-          set -e
+          set -eo pipefail
           mkdir -p build/selftest
           ndk_bin="$ANDROID_NDK/toolchains/llvm/prebuilt/linux-x86_64/bin"
-          python dm/android/tests/selftest_nso.py "$ndk_bin/clang" "$ndk_bin/llvm-objcopy" build/selftest/main.nso
-          DM_GAME="$GAME" DM_TARGET=android python dm/tools/patch_nso.py build/selftest/main.nso build/selftest/patched main
+          python dm/android/tests/selftest_nso.py "$ndk_bin/clang" "$ndk_bin/llvm-objcopy" build/selftest/main.nso 2>&1 | tee /tmp/selftest.log
+          DM_GAME="$GAME" DM_TARGET=android python dm/tools/patch_nso.py build/selftest/main.nso build/selftest/patched main 2>&1 | tee -a /tmp/selftest.log
 
       - name: The demo's shaders, packed for the ${{ github.event.inputs.gpu || 'mali-g57-mc2' }}
         run: |
-          set -e
-          python dm/android/tests/synth_shaders.py build/demo
+          set -eo pipefail
+          python dm/android/tests/synth_shaders.py build/demo 2>&1 | tee /tmp/shaders.log
           python dm/android/tools/spv_build.py build/demo/pkg build/demo/spv \
-            --xlate dm/gfx/tools/dmsh_xlate_bin/dmsh_xlate.dll --facts build/demo/facts.tsv --gpu "$GPU"
+            --xlate dm/gfx/tools/dmsh_xlate_bin/dmsh_xlate.dll --facts build/demo/facts.tsv --gpu "$GPU" 2>&1 | tee -a /tmp/shaders.log
 
       - name: Check the packed shaders for vulkan1.1 (the ${{ github.event.inputs.gpu || 'mali-g57-mc2' }}'s rule)
         run: |
-          set -e
+          set -eo pipefail
           spirv_val="$ANDROID_NDK/shader-tools/linux-x86_64/spirv-val"
-          for f in build/demo/spv/*.spv; do "$spirv_val" --target-env vulkan1.1 "$f"; done
-          echo "$(ls build/demo/spv/*.spv | wc -l) shader modules, all valid for vulkan1.1"
+          for f in build/demo/spv/*.spv; do "$spirv_val" --target-env vulkan1.1 "$f"; done 2>&1 | tee /tmp/spirv_check.log
+          echo "$(ls build/demo/spv/*.spv | wc -l) shader modules, all valid for vulkan1.1" 2>&1 | tee -a /tmp/spirv_check.log
 
       - name: Pack the APK
         run: |
-          set -e
+          set -eo pipefail
           python dm/android/tools/build_apk.py --sdk "$ANDROID_HOME" \
             --loader build/host/libnxloader.so \
             --so "build/host/libdmhost_${GAME}.so" \
             --selftest build/selftest/patched \
             --demo build/demo/spv \
             --keystore "$RUNNER_TEMP/nxnative-debug.jks" \
-            -o nxnative.apk
+            -o nxnative.apk 2>&1 | tee /tmp/apk.log
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9   # v7.0.2
         with:
@@ -154,12 +154,15 @@ jobs:
         if: failure()
         run: |
           set -eux
-          [ -f /tmp/sdk_setup.log ] || [ -f /tmp/shader_tests.log ] || exit 0
+          ls /tmp/*.log 2>/dev/null || true
+          any=0
+          for f in sdk_setup shader_tests host_build selftest shaders spirv_check apk; do
+            if [ -f "/tmp/${f}.log" ]; then cp "/tmp/${f}.log" "./${f}.log"; any=1; fi
+          done
+          [ "$any" = "1" ] || exit 0
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git checkout -b "sdk-diag/${{ github.run_id }}"
-          [ -f /tmp/sdk_setup.log ] && cp /tmp/sdk_setup.log ./sdk_setup.log
-          [ -f /tmp/shader_tests.log ] && cp /tmp/shader_tests.log ./shader_tests.log
-          git add sdk_setup.log shader_tests.log 2>/dev/null || true
-          git commit -m "SDK/shader-test diagnostic (run ${{ github.run_id }})" || true
+          git add sdk_setup.log shader_tests.log host_build.log selftest.log shaders.log spirv_check.log apk.log 2>/dev/null || true
+          git commit -m "Build pipeline diagnostic (run ${{ github.run_id }})" || true
           git push origin "sdk-diag/${{ github.run_id }}"

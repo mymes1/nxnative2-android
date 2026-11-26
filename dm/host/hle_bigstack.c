@@ -39,11 +39,11 @@ uintptr_t dm_bigstack_top(uintptr_t sp) {
 // The game's call site for the take-over running on this thread: dm_bigstack_enter stores x30 (the return
 // address the stub left, i.e. the game's call site) here before calling the implementation; dm_bigstack_caller
 // reads it back. Thread-local: each guest thread has its own big stack and its own call site.
-static __thread uintptr_t g_bs_site;
+static __thread void *g_bs_site;
 
-void dm_bigstack_set_site(uintptr_t site) { g_bs_site = site; }
+void dm_bigstack_set_site(void *site) { g_bs_site = site; }
 
-uintptr_t dm_bigstack_caller(uintptr_t ra) {
+void *dm_bigstack_caller(void *ra) {
     // A take-over always runs through dm_bigstack_enter, which has set the site; if it is ever called
     // straight off (ra already the caller's return address), pass ra through unchanged.
     return g_bs_site ? g_bs_site : ra;

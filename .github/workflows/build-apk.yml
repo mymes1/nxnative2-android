@@ -96,19 +96,22 @@ jobs:
         if: failure()
         run: |
           set -eux
-          [ -f /tmp/sdk_setup.log ] || exit 0
+          [ -f /tmp/sdk_setup.log ] || [ -f /tmp/shader_tests.log ] || exit 0
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git checkout -b "sdk-diag/${{ github.run_id }}"
-          cp /tmp/sdk_setup.log ./sdk_setup.log
-          git add sdk_setup.log
-          git commit -m "SDK setup diagnostic (run ${{ github.run_id }})"
+          [ -f /tmp/sdk_setup.log ] && cp /tmp/sdk_setup.log ./sdk_setup.log
+          [ -f /tmp/shader_tests.log ] && cp /tmp/shader_tests.log ./shader_tests.log
+          git add sdk_setup.log shader_tests.log 2>/dev/null || true
+          git commit -m "SDK/shader-test diagnostic (run ${{ github.run_id }})" || true
           git push origin "sdk-diag/${{ github.run_id }}"
 
       # The Mali pass's checks, with the NDK: the port of spv_readonly.h in spv_android.py against the C itself, and
       # the pass over a game's packed shaders (dm/tools/tests/test_spv_readonly.py, test_spv_mali.py).
       - name: Shader pass tests (with the NDK)
-        run: python -m unittest dm.tools.tests.test_spv_mali dm.tools.tests.test_spv_readonly -v
+        run: |
+          set -o pipefail
+          python -m unittest dm.tools.tests.test_spv_mali dm.tools.tests.test_spv_readonly -v 2>&1 | tee /tmp/shader_tests.log
 
       - name: The game's host (dm/android, CMake + the NDK)
         run: |

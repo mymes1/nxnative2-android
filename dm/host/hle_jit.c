@@ -240,9 +240,13 @@ HLE_FORCE("_ZN2nn3jit20CreateJitEnvironmentEPNS0_9JitHandleERKNS0_27JitEnvironme
     uint8_t *rx = NULL;
 #if TARGET_OS_IPHONE
     die("jit::CreateJitEnvironment: iOS runs no code generated at run time");
-#else
+#elif defined(__APPLE__)
     rx = mmap(NULL, rx_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON | MAP_JIT, -1, 0);
     if (rx == MAP_FAILED) die("jit: MAP_JIT mapping of %#llx bytes failed", (unsigned long long)rx_size);
+#else
+    // Android/Linux: no MAP_JIT; a plain writable+executable private mapping (the plugin generates code at run time)
+    rx = mmap(NULL, rx_size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANON, -1, 0);
+    if (rx == MAP_FAILED) die("jit: code memory mapping of %#llx bytes failed", (unsigned long long)rx_size);
 #endif
     uint8_t *ro = mmap(NULL, ro_size, PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANON, -1, 0);
     if (ro == MAP_FAILED) die("jit: data memory of %#llx bytes", (unsigned long long)ro_size);
@@ -356,11 +360,11 @@ HLE_FORCE("_ZN2nn3jit12GenerateCodeEPNS0_9CodeRangeES2_NS0_9JitHandleEmPKvmRKS1_
     if (!e->plugin) return jit_serve(e, c0_out, c1_out, cmd, in, in_size, c0_in, d32, data_size, out, out_size);
     uint64_t t0 = now_ns();
     pthread_mutex_lock(&e->mu);
-#if !TARGET_OS_IPHONE
+#ifdef __APPLE__
     pthread_jit_write_protect_np(0);
 #endif
     uint64_t w = e->gen(&ret, &o0, &o1, &e->cfg, cmd, in, in_size, c0_in, c1_in, d32, data_size, out, out_size);
-#if !TARGET_OS_IPHONE
+#ifdef __APPLE__
     pthread_jit_write_protect_np(1);
 #endif
     if (!w && !ret && o0.size) {

@@ -19,7 +19,7 @@ dm_game_t g_game;
 const dm_game_t *dm_game_cur(void) { return &g_game; }
 
 // Copy a C string into a freshly allocated buffer the struct holds (the struct's string fields point at owned storage).
-static char *dup(const char *s) {
+static char *xstrdup(const char *s) {
     if (!s) return NULL;
     size_t n = strlen(s) + 1;
     char *p = malloc(n);
@@ -41,7 +41,7 @@ static void profile_clear(dm_game_t *g) {
     g->fps_max = 60;              // fps_max: 60 unless the profile says 120
     g->fps_hold = 1;              // fps_hold: on
     g->opmode = 1;                // op_mode: console
-    g->ue_fps_cvar = dup("t.MaxFPS");   // ue_fps_cvar: Unreal's frame-limit console variable
+    g->ue_fps_cvar = xstrdup("t.MaxFPS");   // ue_fps_cvar: Unreal's frame-limit console variable
 }
 
 static uint64_t parse_u64(const char *s) { return s ? strtoull(s, NULL, 0) : 0; }
@@ -50,7 +50,7 @@ static int parse_int(const char *s) { return s ? (int)strtol(s, NULL, 0) : 0; }
 // Append a token to a string array (each entry owned). Caps at cap entries.
 static void arr_add(const char **arr, int *n, int cap, const char *tok) {
     if (!tok || !*tok || *n >= cap) return;
-    arr[(*n)++] = dup(tok);
+    arr[(*n)++] = xstrdup(tok);
 }
 
 int dm_game_load(const char *path) {
@@ -97,22 +97,22 @@ int dm_game_load(const char *path) {
             // the row's build ID is main's; the modules are the names (main sdk); the display version pairs with the build ID.
             // one row index for the parallel build_id/build_mods arrays, and the same for ver_build/ver_name.
             if (nbuild < 8) {
-                g_game.build_id[nbuild] = dup(main_bid[0] ? main_bid : (ver ? ver : ""));
-                g_game.build_mods[nbuild] = dup(mods);
+                g_game.build_id[nbuild] = xstrdup(main_bid[0] ? main_bid : (ver ? ver : ""));
+                g_game.build_mods[nbuild] = xstrdup(mods);
                 nbuild++;
             }
             if (main_bid[0] && nver < 8) {
-                g_game.ver_build[nver] = dup(main_bid);
-                g_game.ver_name[nver] = dup(disp ? disp : "1.0.0");
+                g_game.ver_build[nver] = xstrdup(main_bid);
+                g_game.ver_name[nver] = xstrdup(disp ? disp : "1.0.0");
                 nver++;
             }
-        } else if (!strcmp(key, "id") || !strcmp(key, "title_id")) g_game.id = dup(p);
-        else if (!strcmp(key, "name")) g_game.name = dup(p);
+        } else if (!strcmp(key, "id") || !strcmp(key, "title_id")) g_game.id = xstrdup(p);
+        else if (!strcmp(key, "name")) g_game.name = xstrdup(p);
         else if (!strcmp(key, "program_id")) g_game.program_id = parse_u64(p);
-        else if (!strcmp(key, "romfs_marker")) g_game.romfs_marker = dup(p);
-        else if (!strcmp(key, "args")) g_game.args = dup(p);
-        else if (!strcmp(key, "env")) g_game.env = dup(p);
-        else if (!strcmp(key, "launch_param")) g_game.launch_param = dup(p);
+        else if (!strcmp(key, "romfs_marker")) g_game.romfs_marker = xstrdup(p);
+        else if (!strcmp(key, "args")) g_game.args = xstrdup(p);
+        else if (!strcmp(key, "env")) g_game.env = xstrdup(p);
+        else if (!strcmp(key, "launch_param")) g_game.launch_param = xstrdup(p);
         else if (!strcmp(key, "mem_reserve")) g_game.mem_reserve = parse_u64(p);
         else if (!strcmp(key, "mem_alias")) g_game.mem_alias = parse_u64(p);
         else if (!strcmp(key, "mem_stack")) g_game.mem_stack = parse_u64(p);
@@ -127,7 +127,7 @@ int dm_game_load(const char *path) {
         else if (!strcmp(key, "fps_target")) g_game.fps_target = parse_int(p);
         else if (!strcmp(key, "fps_max")) g_game.fps_max = parse_int(p);
         else if (!strcmp(key, "fps_hold")) g_game.fps_hold = parse_int(p);
-        else if (!strcmp(key, "ue_fps_cvar")) { free((void *)g_game.ue_fps_cvar); g_game.ue_fps_cvar = dup(p); }
+        else if (!strcmp(key, "ue_fps_cvar")) { free((void *)g_game.ue_fps_cvar); g_game.ue_fps_cvar = xstrdup(p); }
         else if (!strcmp(key, "ue_texture_pool")) g_game.ue_texture_pool = parse_int(p);
         else if (!strcmp(key, "present_interval")) { /* present_display is derived from 'display' below */ if (p && !strcmp(p, "display")) g_game.present_display = 1; }
         else if (!strcmp(key, "present_snap")) g_game.present_snap = parse_int(p);
@@ -145,7 +145,7 @@ int dm_game_load(const char *path) {
         else if (!strcmp(key, "gpu_timestamps")) { const char *m = p; g_game.gpu_ts_segment = (m && !strcmp(m, "segment")) ? 1 : 0; }
         else if (!strcmp(key, "draw_barriers")) { const char *m = p; g_game.draw_barriers_game = (m && !strcmp(m, "game")) ? 1 : 0; }
         else if (!strcmp(key, "vconv_range")) g_game.vconv_range = parse_int(p);
-        else if (!strcmp(key, "upscaler_keys")) g_game.upscaler_keys = dup(p);
+        else if (!strcmp(key, "upscaler_keys")) g_game.upscaler_keys = xstrdup(p);
         else if (!strcmp(key, "shader_key_skip")) {
             // <offset>+<length>
             unsigned off = 0, len = 0;

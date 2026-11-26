@@ -42,14 +42,8 @@ void mtl_present_layer(uint32_t w, uint32_t h) { (void)w; (void)h; }
 // The Metal present queue progress (nvn_mtl.m): how many frames are queued / have been handed on. On
 // Android the Vulkan present tracks its own swapchain; report nothing queued or done.
 void mtl_present_progress(uint64_t *queued, uint64_t *done) { *queued = 0; *done = 0; }
-// The Metal present time for a frame (nvn_mtl.m: CACurrentMediaTime). On Android, no frame history
-// timestamps: 0 (not yet presented).
-double mtl_presented_time(uint64_t n) { (void)n; return 0; }
 // The Metal residency-set report (nvn_mtl.m res_top): a diagnostic dump of what the residency set
 // holds. On Android the Vulkan residency set is not exposed through this hook: no-op.
 void dm_gfx_restop(void) {}
-// The count of CPU-written textures alive (nvn_mtl.m): the Vulkan backend tracks its own texture
-// lifecycle; report 0 for the diagnostic log line.
-unsigned mtl_cpu_tex_count(void) { return 0; }
-// The present QoS value (nvn_mtl.m): the Vulkan present does not set a Metal QoS; report 0.
-uint32_t mtl_present_qos(void) { return 0; }
+// Note: mtl_presented_time, mtl_cpu_tex_count and mtl_present_qos are defined by the
+// Vulkan backend (gfx_vk.c), not stubbed here.

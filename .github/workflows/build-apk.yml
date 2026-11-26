@@ -154,7 +154,6 @@ jobs:
         if: failure()
         run: |
           set -eux
-          ls /tmp/*.log 2>/dev/null || true
           any=0
           for f in sdk_setup shader_tests host_build selftest shaders spirv_check apk; do
             if [ -f "/tmp/${f}.log" ]; then cp "/tmp/${f}.log" "./${f}.log"; any=1; fi
@@ -163,6 +162,9 @@ jobs:
           git config user.email "actions@github.com"
           git config user.name "GitHub Actions"
           git checkout -b "sdk-diag/${{ github.run_id }}"
-          git add sdk_setup.log shader_tests.log host_build.log selftest.log shaders.log spirv_check.log apk.log 2>/dev/null || true
+          # git add aborts entirely if any named path is missing, so add the logs one by one
+          for f in sdk_setup shader_tests host_build selftest shaders spirv_check apk; do
+            [ -f "./${f}.log" ] && git add "${f}.log"
+          done
           git commit -m "Build pipeline diagnostic (run ${{ github.run_id }})" || true
           git push origin "sdk-diag/${{ github.run_id }}"

@@ -37,7 +37,7 @@ env:
   GAME: ${{ github.event.inputs.game || '0400921025B32000' }}   # Sonic Frontiers Definitive Edition
   GPU: ${{ github.event.inputs.gpu || 'mali-g57-mc2' }}         # the Mali-G57 MC2: NonWritable at pack time
   ANDROID_HOME: ${{ github.workspace }}/android-sdk
-  ANDROID_NDK: ${{ github.workspace }}/android-sdk/ndk/27.2.12479018
+  ANDROID_NDK: ${{ github.workspace }}/android-sdk/ndk/28.2.13676358
   ANDROID_CMAKE: ${{ github.workspace }}/android-sdk/cmake/3.22.1
 
 defaults:
@@ -79,7 +79,7 @@ jobs:
           mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
           yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
-            "platforms;android-35" "build-tools;36.0.0" "ndk;27.2.12479018" "cmake;3.22.1"
+            "platform-tools" "platforms;android-35" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
 
       # The Mali pass's checks, with the NDK: the port of spv_readonly.h in spv_android.py against the C itself, and
       # the pass over a game's packed shaders (dm/tools/tests/test_spv_readonly.py, test_spv_mali.py).

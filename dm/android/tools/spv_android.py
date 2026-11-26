@@ -10,8 +10,11 @@
 #     VK_EXT_transform_feedback): the host draws it as points with rasterization off, the vertex buffers shifted so v counts from the draw's first vertex;
 #   for a vertex shader, also <key>.z.spv: before every return of the entry point, position z becomes (z + w) / 2, the -1..1 depth of NVN's default depth mode
 #     mapped to Vulkan's 0..1 (nvn_mtl.m adds the same as its main0_z entry point; Vulkan without VK_EXT_depth_clip_control has no other way).
-# Usage: spv_android.py <dmsh_xlate output dir> <out dir> [key ...]   (all keys of the input dir by default); prints one line per shader and a summary
-import json, struct, sys
+# --gpu <target> packs for a GPU: 'default' (the host decorates at shader-module load, by the device's features) or a Mali target such as
+#   'mali-g57-mc2' (the Mali-G57 MC2, which has no vertexPipelineStoresAndAtomics): every vertex-pipeline module gets NonWritable on its read-only
+#   storage resources here, at pack time (spv_readonly.h's pass, ported as spv_readonly_words below), and the res.json records the target.
+# Usage: spv_android.py <dmsh_xlate output dir> <out dir> [key ...] [--gpu <target>]   (all keys of the input dir by default); prints one line per shader and a summary
+import argparse, json, re, struct, sys
 from pathlib import Path
 
 ANDROID_CHAIN = 3   # res.json 'android': bumped when this post-pass or spv_build.py's translation changes what they make (spv_build.py translates older outputs again)
@@ -308,17 +311,120 @@ def int_inputs(ins):
         if not bad and nint: out[str(loc[x[2]])] = 'uint'
     return out
 
+# ---- The Mali pass: NonWritable on the vertex pipeline's read-only storage resources ----
+# A GPU without vertexPipelineStoresAndAtomics (the Mali-G57 MC2, the Mali-G76: dm/android/spv_readonly.h)
+# wants every storage buffer and storage image a vertex, tessellation or geometry shader declares decorated
+# NonWritable (VUID-RuntimeSpirv-NonWritable-06340), and the translator never adds it. The host applies the
+# same pass at shader-module load when the device lacks the feature (gfx_vk_draw.inc sh_module); a build that
+# names a Mali target here applies it at pack time instead, so the packed modules are already correct and
+# validated for that GPU (the host's pass then finds them decorated and leaves them as they are).
+# spv_readonly_words is spv_readonly.h's spv_readonly() over the module's words, word for word;
+# dm/tools/tests/test_spv_mali.py runs both over the same modules and checks they agree.
+STORAGE, IMAGE, DECORATED, WRITTEN = 1, 2, 8, 32
+OP_ENTRY_, OP_DECORATE_, OP_TYPEIMAGE_, OP_TYPEARRAY_, OP_TYPERUNTIMEARRAY_, OP_TYPEPOINTER_, OP_VARIABLE_ = 15, 71, 25, 28, 29, 32, 59
+OP_ACCESSCHAIN_, OP_INBOUNDSACCESSCHAIN_, OP_PTRACCESSCHAIN_, OP_COPYOBJECT_, OP_VECTOREXTRACTDYNAMIC_, OP_LOAD_, OP_IMAGEPIXELPOINTER_ = 65, 66, 67, 70, 83, 61, 60
+OP_STORE_, OP_COPYMEMORY_, OP_COPYMEMORYSIZED_, OP_ATOMICSTORE_, OP_IMAGEWRITE_ = 62, 63, 64, 228, 99
+OP_FUNCTIONCALL_ = 57
+
+
+def spv_readonly_words(w, cap=None):
+    """→ (the module's words with NonWritable added to each read-only storage resource of the vertex pipeline, or None when
+    the module needs nothing / the output does not fit), the variables the shader writes through (not decorated), the variables decorated)"""
+    n = len(w)
+    if n < 5: return None, 0, 0
+    bound = w[3]
+    root = [0] * bound
+    kind = [0] * bound
+    vtx = nvar = 0
+    i = 5
+    while i < n:
+        ln, op = w[i] >> 16, w[i] & 0xffff
+        if not ln or i + ln > n: return None, 0, 0
+        if op == OP_ENTRY_ and ln > 1 and w[i + 1] <= 3: vtx = 1   # Vertex, TessellationControl, TessellationEvaluation, Geometry
+        if op == OP_DECORATE_ and ln > 2 and w[i + 1] < bound:
+            if w[i + 2] == 3: kind[w[i + 1]] |= STORAGE          # BufferBlock
+            if w[i + 2] == 24: kind[w[i + 1]] |= DECORATED       # NonWritable
+        if op == OP_TYPEIMAGE_ and ln > 7 and w[i + 1] < bound and w[i + 7] == 2: kind[w[i + 1]] |= IMAGE   # Sampled 2: a storage image
+        if op in (OP_TYPEARRAY_, OP_TYPERUNTIMEARRAY_) and ln > 2 and w[i + 1] < bound and w[i + 2] < bound:
+            kind[w[i + 1]] |= kind[w[i + 2]] & (STORAGE | IMAGE)
+        if op == OP_TYPEPOINTER_ and ln > 3 and w[i + 1] < bound and w[i + 3] < bound:
+            c, k = w[i + 2], kind[w[i + 3]]
+            kind[w[i + 1]] |= STORAGE if c == 12 else (k & STORAGE if c == 2 else (k & IMAGE if c == 0 else 0))
+        if op == OP_VARIABLE_ and ln > 3 and w[i + 1] < bound and w[i + 2] < bound and (kind[w[i + 1]] & (STORAGE | IMAGE)) and not (kind[w[i + 2]] & DECORATED):
+            root[w[i + 2]] = w[i + 2]; nvar += 1
+        i += ln
+    if not vtx or not nvar: return None, 0, 0
+    changed = 1
+    for _ in range(16):   # the pointers and image values derived from them, until no more; the writes through them
+        if not changed: break
+        changed = 0
+        i = 5
+        while i < n:
+            ln, op = w[i] >> 16, w[i] & 0xffff
+            to = frm = wr = 0
+            if op in (OP_ACCESSCHAIN_, OP_INBOUNDSACCESSCHAIN_, OP_PTRACCESSCHAIN_, OP_COPYOBJECT_, OP_VECTOREXTRACTDYNAMIC_, OP_LOAD_, OP_IMAGEPIXELPOINTER_) and ln > 3:
+                to, frm = w[i + 2], w[i + 3]
+            if to and to < bound and frm < bound and root[frm] and not root[to]: root[to] = root[frm]; changed = 1
+            if op in (OP_STORE_, OP_COPYMEMORY_, OP_COPYMEMORYSIZED_, OP_ATOMICSTORE_, OP_IMAGEWRITE_) and ln > 1: wr = w[i + 1]
+            if (229 <= op <= 242 or op == 6035) and ln > 3: wr = w[i + 3]   # the read-modify-write atomics (and OpAtomicFAddEXT)
+            if wr and wr < bound and root[wr]: kind[root[wr]] |= WRITTEN
+            if op == OP_FUNCTIONCALL_:
+                for a in range(4, ln):
+                    if w[i + a] < bound and root[w[i + a]]: kind[root[w[i + a]]] |= WRITTEN
+            i += ln
+    written = added = 0
+    for v in range(bound):
+        if root[v] == v and v:
+            if kind[v] & WRITTEN: written += 1
+            else: added += 1
+    if not added: return None, written, 0
+    if cap is not None and n + 3 * added > cap: return None, written, 0
+    out = w[:5]; k = 5; done = 0
+    i = 5
+    while i < n:
+        ln, op = w[i] >> 16, w[i] & 0xffff
+        if not done and (op == OP_DECORATE_ or op == 72 or 19 <= op <= 39):   # before the first decoration (or the first type, in a module without one)
+            for v in range(bound):
+                if root[v] == v and v and not (kind[v] & WRITTEN): out += [3 << 16 | OP_DECORATE_, v, 24]
+            done = 1
+        out.extend(w[i:i + ln]); i += ln
+    return (out if done else None), written, added
+
+
+# the vertex-pipeline stages the NonWritable rule covers (pixel and compute shaders declare no such rule)
+VERTEX_STAGES = {'vs', 'gs', 'tc', 'te'}
+GPU_RE = re.compile(r'[a-z0-9][a-z0-9._-]*\Z')
+
+
 def main():
-    src, dst = Path(sys.argv[1]), Path(sys.argv[2]); dst.mkdir(parents=True, exist_ok=True)
-    keys = sys.argv[3:] or sorted(p.stem for p in src.glob('*.spv') if not p.name.endswith('.reader.spv'))
+    ap = argparse.ArgumentParser(description="make dmsh_xlate's Vulkan SPIR-V ready for the Android replay")
+    ap.add_argument('src'); ap.add_argument('dst'); ap.add_argument('keys', nargs='*')
+    ap.add_argument('--gpu', default='default', help="the GPU the shaders are packed for: 'default' (no pack-time pass: the host decorates at load, by the device's features) or a Mali target such as 'mali-g57-mc2' (NonWritable added at pack time, dm/android/spv_readonly.h)")
+    a = ap.parse_args()
+    gpu = a.gpu
+    if not GPU_RE.match(gpu): sys.exit(f'--gpu takes a target name such as default or mali-g57-mc2: {gpu}')
+    mali = gpu.startswith('mali')
+    src, dst = Path(a.src), Path(a.dst); dst.mkdir(parents=True, exist_ok=True)
+    keys = a.keys or sorted(p.stem for p in src.glob('*.spv') if not p.name.endswith('.reader.spv'))
     n = nz = bad = 0
     for k in keys:
         res = json.loads((src / f'{k}.res.json').read_text(encoding='utf-8'))
         stage = res.get('stage', 'vs')
         hdr, ins, interlock = process((src / f'{k}.spv').read_bytes(), stage)
-        (dst / f'{k}.spv').write_bytes(emit(hdr, ins)); n += 1
+        data = emit(hdr, ins)
+        if mali and stage in VERTEX_STAGES:
+            words = list(struct.unpack('<%dI' % (len(data) // 4), data))
+            words, wr, added = spv_readonly_words(words)
+            if words is not None:
+                data = struct.pack('<%dI' % len(words), *words)
+                res.setdefault('notes', []).append(f'android: {added} read-only storage resource(s) decorated NonWritable for {gpu} ({wr} written, left as they are)')
+            elif wr:
+                print(f'[RED] {k}: a vertex-pipeline shader writes a storage resource, which {gpu} has no vertexPipelineStoresAndAtomics for: it cannot be packed for this GPU')
+            if data != emit(hdr, ins):   # the variants below are made from the module as packed
+                hdr, ins = parse(data)
+        (dst / f'{k}.spv').write_bytes(data); n += 1
         if interlock: res.setdefault('notes', []).append('android: fragment shader interlock removed (no ordering of overlapping fragments)')
-        res['set'] = SET_OF.get(stage, 0); res['android'] = ANDROID_CHAIN
+        res['set'] = SET_OF.get(stage, 0); res['android'] = ANDROID_CHAIN; res['gpu'] = gpu
         if stage == 'vs': res['vin'] = vin_types(ins)
         (dst / f'{k}.res.json').write_text(json.dumps(res), encoding='utf-8')
         if stage == 'vs' and res.get('tf'):
@@ -327,7 +433,7 @@ def main():
             z = z_variant(hdr, ins)
             if z: (dst / f'{k}.z.spv').write_bytes(z); nz += 1
             else: bad += 1; print(f'[RED] {k}: no position output found, no depth -1..1 variant')
-    print(f'spv_android: {n} shaders, {nz} depth variants, {bad} without one')
+    print(f'spv_android: {n} shaders, {nz} depth variants, {bad} without one (gpu {gpu})')
 
 if __name__ == '__main__':
     main()

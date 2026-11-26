@@ -3,9 +3,10 @@
 # the code area's, padded to 0x38, the code area, the control section) becomes a dmsh_xlate job as dmsh_build.py job_for makes it (the 0x30 header stripped, a
 # compute area's instructions from +0x100, c1 from control +0x700..+0x704, the profile's translation facts), with softfloat64 (phones' GPUs have no FP64). The
 # translator's output goes through spv_android.py: <out dir>/<key>.spv, <key>.z.spv (vertex) and <key>.res.json, which the app finds in game/spv (DM_SPV_DIR).
+# --gpu <target> names the GPU the shaders are packed for (spv_android.py's --gpu: 'default', or a Mali target such as 'mali-g57-mc2' for the NonWritable pack-time pass).
 # The key is the host's (hle_nvn.c keys_hash): sha256 of the control section (its own length when +0x20 gives one under 0x880) and the code area, 16 hex digits.
 # Vertex shaders in two parts (VertexA + VertexB, Catherine: Full Body's GLSLC) are merged into one program first, as dmsh_build.py vertex_ab does.
-# Usage: spv_build.py <package dir> <out dir> --xlate <dmsh_xlate.dll or executable> [--facts <shader_facts.tsv>] [-j N]
+# Usage: spv_build.py <package dir> <out dir> --xlate <dmsh_xlate.dll or executable> [--facts <shader_facts.tsv>] [--gpu <target>] [-j N]
 import spv_android as sa   # beside this file
 import argparse, concurrent.futures as cf, hashlib, json, os, re, shutil, struct, subprocess, sys, tempfile
 from pathlib import Path
@@ -105,6 +106,7 @@ def job(key, stage, code, ctl, w, facts):
 def main():
     ap = argparse.ArgumentParser(description='translate a shader_split package for the Android Vulkan replay')
     ap.add_argument('package'); ap.add_argument('out'); ap.add_argument('--xlate', required=True); ap.add_argument('--facts'); ap.add_argument('-j', type=int, default=os.cpu_count() or 4)
+    ap.add_argument('--gpu', default='default', help="the GPU the shaders are packed for (spv_android.py's --gpu): 'default' or a Mali target such as 'mali-g57-mc2'")
     a = ap.parse_args()
     out = Path(a.out); out.mkdir(parents=True, exist_ok=True)
     facts = {}
@@ -156,7 +158,7 @@ def main():
     done = sorted(p.name[:-4] for p in tout.glob('*.spv') if not p.name.endswith('.reader.spv'))
     for k in done:   # the feedback layout goes with the shader's reflection: spv_android.py makes the capture variant from it
         if k in tfs: rp = tout / f'{k}.res.json'; r = json.loads(rp.read_text(encoding='utf-8')); r['tf'] = tfs[k]; rp.write_text(json.dumps(r), encoding='utf-8')
-    if done: subprocess.run([sys.executable, str(HERE / 'spv_android.py'), str(tout), str(out)], check=True)   # every key in tout (this run's): no list on the command line, which Windows limits to 32 K characters
+    if done: subprocess.run([sys.executable, str(HERE / 'spv_android.py'), str(tout), str(out), '--gpu', a.gpu], check=True)   # every key in tout (this run's): no list on the command line, which Windows limits to 32 K characters
     for k in keys:
         if k not in done and k not in failed: failed[k] = 'no output from the translator'
     for k, why in sorted(skipped.items()): print(f'[RED] {k}: {why}')

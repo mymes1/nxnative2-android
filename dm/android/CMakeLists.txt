@@ -47,6 +47,7 @@ list(REMOVE_ITEM HOST_C ${DM}/host/hle_movie_avc.c)   # VideoToolbox: media_andr
 list(REMOVE_ITEM HOST_C ${DM}/host/hle_cheats.c)     # test-only (t_cheats.c builds it with loader/heap/key stubs); its DM_CHEAT_* macros and dm_guest_heap_*/dm_module_dir are not defined for a host build, and nothing on Android calls its dm_cheats_* interface
 # Graphics: the NVN interface layer and texture code (the Metal replay layer, the Vulkan and GL layers are Objective-C on Metal: backend_*.c stand in)
 file(GLOB GFX_C ${DM}/gfx/*.c ${DM}/gfx/nvn/*.c ${DM}/gfx/tex/*.c)
+list(REMOVE_ITEM GFX_C ${DM}/gfx/nvn/nvn_capture.c)   # Metal frame capture (nvn_mtl.m): uses Apple libcompression (LZFSE); the Android replay is Vulkan (gfx_vk.c), which calls none of its functions
 file(GLOB_RECURSE VPX_C ${DM}/third_party/libvpx/*.c)
 
 # The NVN replay: gfx_vk.c (Vulkan) by default; -DDM_GFX=null builds gfx_null.c (no GPU: submissions completed on the CPU, nothing drawn)

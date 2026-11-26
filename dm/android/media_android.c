@@ -39,6 +39,10 @@ void mavc_drop(mavc *a) {
 void mavc_free(mavc *a) { if (!a) return; if (a->arrived != a->rendered) LOG("[RED] movie: AVC decoder rendered %ld pictures, %ld reached the reader", a->rendered, a->arrived); close_codec(a); mavc_drop(a); free(a->au); pthread_mutex_destroy(&a->mu); pthread_cond_destroy(&a->cv); free(a); }
 int mavc_queued(const mavc *a) { return a->nq; }
 void mavc_set_rgba(mavc *a) { a->rgba = 1; }
+// The stream's colour matrix is BT.709: as its SPS declares; undeclared (or no SPS yet), from 720 lines up.
+// MediaCodec has no format-description object to read a matrix from (the VideoToolbox path uses CMFormatDescription),
+// so this is the fallback rule: BT.709 from 720 lines up, BT.601 below.
+int mavc_bt709(const mavc *a, int h) { (void)a; return h >= 720; }
 
 static void keep_ps(mavc *a, const uint8_t *nal, size_t n) {   // a parameter set NAL unit (without start code)
     int t = nal[0] & 31; uint8_t *dst = t == 7 ? a->sps : a->pps; int *dn = t == 7 ? &a->nsps : &a->npps;

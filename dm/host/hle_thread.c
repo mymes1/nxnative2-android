@@ -318,6 +318,8 @@ extern void dm_thread_enter(uint64_t entry, uint64_t arg, uint64_t sp);   // ent
 uint32_t (*dm_thread_tick_fn)(void);   // Gets the current game tick; registered when diag.c initializes (unit tests do not register it, the tick number is recorded as 0)
 void crash_thread_init(void);
 void guest_thread_init(void);   // thread.c: the single place that sets the per-thread TSD slots (gate, x18, TLS, TLR)
+void guest_thread_set_id(uint64_t id);   // thread.c: the thread's kernel ID in its TLR (SDK 22 mutex ownership)
+void guest_gate_stack(int own_stack);   // thread.c: the thread's gate slot and the stack its SVCs run on
 // Switch priority → QoS class (DM_QOS_MAP=1; off by default until a phone A/B shows it saves power without dropping frames). Otherwise every guest thread runs at user-interactive
 // whatever its priority, and the performance controller keeps all of them on fast cores at high clocks. Bands: priority <= e1 (the main thread is 44) user-interactive, <= e2 user-initiated,
 // above that utility; DM_QOS_EDGES=e1,e2 moves them (default 44,59). Read once in svc_thread_main_init, before any other guest thread exists
@@ -347,7 +349,8 @@ static void *thread_main(void *p) {
     pthread_get_qos_class_np(pthread_self(), &qc, &rp); t->qos = (uint32_t)qc;
     t->mport = pthread_mach_thread_np(pthread_self()); t->host_work = &dm_host_work;
     crash_thread_init();
-    guest_thread_init();
+    guest_thread_init(); guest_thread_set_id(t->id);
+    guest_gate_stack(1);   // the guest runs on its own stack from dm_thread_enter on: this pthread's stack below this frame is where its SVCs run
     pthread_mutex_lock(&G); while (!t->started) pthread_cond_wait(&t->cv, &G); t->entered = 1; pthread_mutex_unlock(&G);
     { char nb[48], hn[64]; snprintf(hn, sizeof hn, "%#x %s", t->handle, thr_name(t, nb, sizeof nb)); pthread_setname_np(hn); }   // the guest's name (set before StartThread) for sample / Instruments
     t->host_sp = (uintptr_t)__builtin_frame_address(0) & ~(uintptr_t)15;   // below it only this frame, which is never returned to
@@ -541,6 +544,7 @@ uint32_t svc_thread_main_init(void) {
     t->started = t->entered = 1; t->prio = 44; t->core = 0; t->mask = 7; t->pt = pthread_self(); t->mport = pthread_mach_thread_np(t->pt); t->host_work = &dm_host_work;
     pthread_mutex_lock(&G); t->handle = h_new(O_THREAD, t); t->id = g_next_id++; t->all = g_all; g_all = t; pthread_mutex_unlock(&G);
     pthread_setspecific(g_keythr, t);
+    guest_thread_set_id(t->id);   // main.c ran guest_thread_init before this, and no guest code has run yet
     pthread_setname_np("0x1001 main thread");
     qos_class_t qc = QOS_CLASS_UNSPECIFIED; int rp = 0;
     pthread_get_qos_class_np(pthread_self(), &qc, &rp); t->qos = (uint32_t)qc;
@@ -881,6 +885,14 @@ void dm_guest_sleep_ns(int64_t ns) {
     }
     thr_t *me = pthread_getspecific(g_keythr); if (me) me->sleeping = 1;
     sleep_precise(now_ns() + (uint64_t)ns);
+    if (me) me->sleeping = 0;
+}
+// A guest condition variable wait with a timeout in ns (hle_net.c: the eventfd poll). Marks the thread
+// sleeping so the yield scheduler knows, then timed-waits on the host condvar.
+void dm_guest_cond_wait_ns(pthread_cond_t *c, pthread_mutex_t *m, int64_t ns) {
+    thr_t *me = pthread_getspecific(g_keythr); if (me) me->sleeping = 1;
+    struct timespec ts = {ns / 1000000000, ns % 1000000000};
+    pthread_cond_timedwait_relative_np(c, m, &ts);
     if (me) me->sleeping = 0;
 }
 int svc_thread(int num, uint64_t *regs) {

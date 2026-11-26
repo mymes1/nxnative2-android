@@ -44,6 +44,7 @@ endforeach()
 # Host sources: every dm/host/*.c, as the Mac Makefile's wildcard, less the ones Android replaces
 file(GLOB HOST_C ${DM}/host/*.c)
 list(REMOVE_ITEM HOST_C ${DM}/host/hle_movie_avc.c)   # VideoToolbox: media_android.c (MediaCodec)
+list(REMOVE_ITEM HOST_C ${DM}/host/hle_cheats.c)     # test-only (t_cheats.c builds it with loader/heap/key stubs); its DM_CHEAT_* macros and dm_guest_heap_*/dm_module_dir are not defined for a host build, and nothing on Android calls its dm_cheats_* interface
 # Graphics: the NVN interface layer and texture code (the Metal replay layer, the Vulkan and GL layers are Objective-C on Metal: backend_*.c stand in)
 file(GLOB GFX_C ${DM}/gfx/*.c ${DM}/gfx/nvn/*.c ${DM}/gfx/tex/*.c)
 file(GLOB_RECURSE VPX_C ${DM}/third_party/libvpx/*.c)

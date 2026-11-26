@@ -26,7 +26,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: read
+  contents: write   # the SDK-diagnostic step pushes its log to a branch when the SDK setup fails
 
 # A new commit replaces the older run; the APK of the newest commit is the one that matters.
 concurrency:
@@ -90,6 +90,19 @@ jobs:
           name: sdk-setup-log
           path: /tmp/sdk_setup.log
           if-no-files-found: ignore
+
+      - name: Push SDK diagnostic to a branch (on failure)
+        if: failure()
+        run: |
+          set -eux
+          [ -f /tmp/sdk_setup.log ] || exit 0
+          git config user.email "actions@github.com"
+          git config user.name "GitHub Actions"
+          git checkout -b "sdk-diag/${{ github.run_id }}"
+          cp /tmp/sdk_setup.log ./sdk_setup.log
+          git add sdk_setup.log
+          git commit -m "SDK setup diagnostic (run ${{ github.run_id }})"
+          git push origin "sdk-diag/${{ github.run_id }}"
 
       # The Mali pass's checks, with the NDK: the port of spv_readonly.h in spv_android.py against the C itself, and
       # the pass over a game's packed shaders (dm/tools/tests/test_spv_readonly.py, test_spv_mali.py).

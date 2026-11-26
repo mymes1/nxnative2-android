@@ -132,9 +132,10 @@ def button_font(work, logs, env):   # the Nintendo extension shared font's stand
     return font
 
 
-def build_shaders(sv, dirs, work, logs, env, g, dlc_roms=()):
+def build_shaders(sv, dirs, work, logs, env, g, dlc_roms=(), gpu='default'):
     """The game's NVN shaders for the Vulkan replay: the split (build_ipa_from_nsp.py split_shaders, checked against the profile's tables), then
-    dm/android/tools/spv_build.py (the in-repository translator, dmsh_xlate_bin's dll run by dotnet) into <work>/spv. None when there are none"""
+    dm/android/tools/spv_build.py (the in-repository translator, dmsh_xlate_bin's dll run by dotnet) into <work>/spv. None when there are none.
+    gpu: the GPU the shaders are packed for (spv_build.py's --gpu: 'default', or a Mali target such as 'mali-g57-mc2')"""
     if not sv: return None
     sh = work / 'shader'
     own = not g.dir.resolve().is_relative_to((REPO / 'dm/games').resolve())   # a provisional profile (outside dm/games) takes the split's tables, as build_ipa_from_nsp.py does; the repository's are checked
@@ -143,7 +144,7 @@ def build_shaders(sv, dirs, work, logs, env, g, dlc_roms=()):
     bi.PROG.stage('shaders for Vulkan', step='translating')
     out = work / 'spv'
     try: bi.run([sys.executable, REPO / 'dm/android/tools/spv_build.py', sh / 'pkg', out, '--xlate', REPO / 'dm/gfx/tools/dmsh_xlate_bin/dmsh_xlate.dll',
-                 '--facts', g.table('shader_facts.tsv')], logs / 'spv_build.log', env=env)
+                 '--facts', g.table('shader_facts.tsv'), '--gpu', gpu], logs / 'spv_build.log', env=env)
     except BuildError as e: bi.PROG.end(str(e), ok=False); say(f'[RED] shader translation failed (see {logs / "spv_build.log"}): the game is packed with the shaders translated so far'); return out if out.is_dir() else None
     last = [l for l in (logs / 'spv_build.log').read_text(errors='replace').splitlines() if l.startswith('spv_build:')]
     bi.PROG.end(last[-1][11:] if last else str(out))
@@ -476,6 +477,26 @@ def provisional_profile(gamemod, nsp_dir, app):   # the provisional profile an e
     return gamemod.load(f'{app:016X}')
 
 
+def register_profile(g, nsp_dir):   # complete a surveyed game's profile: promote the provisional profile (<NSP folder>/<id>_build/profile/<id>) into dm/games/<id>/ — game.tsv and the shader tables the split wrote — so the game is registered and later builds check its tables (a mismatch stops the build). The README's state line is updated.
+    src = nsp_dir / f'{g.id}_build' / 'profile' / g.id
+    dst = REPO / 'dm/games' / g.id
+    if not (src / 'game.tsv').is_file(): raise BuildError(f'no provisional profile to register in {src}')
+    dst.mkdir(parents=True, exist_ok=True)
+    n = 0
+    for f in sorted(src.iterdir()):
+        if f.name == 'README.md' or not f.is_file(): continue   # the scaffold's notes stay; the profile's data files are promoted
+        shutil.copyfile(f, dst / f.name); n += 1
+    rd = dst / 'README.md'
+    if rd.is_file():
+        text = rd.read_text(encoding='utf-8')
+        new = "**State: completed from the NSP survey.** `game.tsv` and the shader tables were written by the survey and the shader split (`scripts/build_android_from_nsp.py --register`); the memory keys are the survey's guess, refined by the heap check (`DM_SVC=1`)."
+        # the scaffold's state sentence may wrap across lines: match it tolerantly, from the marker to the sentence's end
+        text2, nsub = re.subn(r'\*\*State: scaffolded, waiting for the NSP\.\*\*.*?user\'s NSP \(below\)\.', new, text, flags=re.S)
+        if nsub: rd.write_text(text2, encoding='utf-8')
+        else: say(f'note: {rd} keeps its state line (the scaffold text was not found)')
+    return dst, n
+
+
 def info(nsp_dir):
     sys.path.insert(0, str(REPO / 'dm/games')); import game as gamemod
     sys.path.insert(0, str(REPO / 'dm/tools')); import nacp
@@ -511,6 +532,7 @@ def main(argv):
     ap.add_argument('-l', '--language', default='en-US', help='the game language (a code or a name; English by default)')
     ap.add_argument('--sdk', help='the Android SDK (default ANDROID_HOME)'); ap.add_argument('--serial', help='the adb device (default: the only one)')
     ap.add_argument('--no-push', action='store_true', help='build the APK only; do not install it or copy the game files to the phone')
+    ap.add_argument('--register', action='store_true', help='complete a surveyed game\'s profile: after the build, promote the provisional profile into dm/games/<id>/ (game.tsv + the shader tables), so the game is registered and later builds check its tables')
     ap.add_argument('--push-only', action='store_true', help='install the app and copy a game built before to the phone, without building')
     ap.add_argument('--update-shaders', action='store_true', help='pull the shaders a game compiled at run time on the phone, translate the new ones and copy them (no app build)')
     ap.add_argument('--apk-only', action='store_true', help='pack the app with every game host built on this computer and install it')
@@ -520,7 +542,9 @@ def main(argv):
     ap.add_argument('--info', action='store_true', help="print the NSP folder's game details as JSON and stop")
     ap.add_argument('--progress', choices=('auto', 'bar', 'lines', 'json', 'off'), default='auto', help='stage lines on the console; json = newline-delimited JSON events')
     ap.add_argument('--allow-damaged', action='store_true', help='pack files that fail the NCA hash check as read')
+    ap.add_argument('--gpu', default='default', help="the GPU the game's shaders are packed for (spv_build.py's --gpu): 'default' (the host decorates at shader-module load, by the device's features) or a Mali target such as 'mali-g57-mc2' (NonWritable added at pack time)")
     a = ap.parse_args(argv)
+    if not re.fullmatch(r'[a-z0-9][a-z0-9._-]*', a.gpu): raise BuildError(f'--gpu takes a target name such as default or mali-g57-mc2: {a.gpu}')
     bi.PROG.mode = bi.progress_mode('off' if a.check or a.info else a.progress); bi.ALLOW_DAMAGED = a.allow_damaged
     if not (a.check or a.info) and os.environ.get('NXNATIVE_JOURNAL', '1') != '0': bi.PROG = Journaled(bi.PROG.mode, argv)
     if a.check or a.info:   # stdout carries the JSON alone: messages on the way (say) go to stderr
@@ -593,7 +617,7 @@ def main(argv):
         bi.PROG.plan((0 if a.update_shaders else 3) + 2 * bool(new) + bool(a.update_shaders))
         if new:   # the split again with the new captures, and the new ones translated (the others are kept)
             aoc = work / 'aoc'; dlc_roms = sorted(p for p in aoc.iterdir() if p.is_dir() or p.suffix == '.img') if aoc.is_dir() else []
-            spv = build_shaders(g.words('shader_versions') or [pkg_ver], {pkg_ver: game}, work, logs, env, g, dlc_roms) or spv
+            spv = build_shaders(g.words('shader_versions') or [pkg_ver], {pkg_ver: game}, work, logs, env, g, dlc_roms, gpu=a.gpu) or spv
         if a.update_shaders:
             if not new: say('no new run-time shaders on the phone'); bi.PROG.end(); return
             bi.PROG.stage('copy the shaders to the phone'); dst = f'{REMOTE}/games/{g.id}'
@@ -617,7 +641,7 @@ def main(argv):
         aoc = bi.extract_aoc(nx, keys, REPO, work, app, fam, logs)
         if prov and serial: pull_captures(serial, g.id, capture_dir, logs)
         dlc_roms = sorted(p for p in aoc.iterdir() if p.is_dir() or p.suffix == '.img') if aoc else []
-        spv = build_shaders(sv, {v: (game if v == pkg_ver else bi.extract(nx, keys, ex, v, picks[v][0], picks[v][1], None, logs, g, app)) for v in sv}, work, logs, env, g, dlc_roms)
+        spv = build_shaders(sv, {v: (game if v == pkg_ver else bi.extract(nx, keys, ex, v, picks[v][0], picks[v][1], None, logs, g, app)) for v in sv}, work, logs, env, g, dlc_roms, gpu=a.gpu)
         bi.PROG.stage('Android host'); so, loader, ndk = build_host(sdk, g.id, work, logs, env); st = build_selftest(ndk, work, logs, env)
         library_add(g.id, so, loader, st, {'title_id': g.id, 'name': nacp.name(game / 'control.nacp') or g.get('name', ''), 'version': pkg_ver,
                                             'display': nacp.version(game / 'control.nacp'), 'nsp_dir': str(nsp_dir)})
@@ -627,6 +651,12 @@ def main(argv):
     lang = bi.game_language(bi.language_code(a.language) or 'en-US', a.language != 'en-US', have_l)
     bi.PROG.stage('APK'); apk = make_apk(sdk, logs, env); bi.PROG.end(str(apk))
     label = nacp.name(game / 'control.nacp') or g.get('name', '') or g.id
+    if a.register and prov:   # complete the profile: the surveyed provisional profile becomes the game's registered profile
+        try:
+            dst, n = register_profile(g, nsp_dir)
+            say(f'profile registered: {dst} ({n} file(s)); the survey report is {nsp_dir / f"{g.id}_survey" / "survey.md"}')
+        except BuildError as e: say(f'[RED] {e}')
+    elif a.register: say('--register: the game already has a registered profile; nothing to promote')
     if a.no_push:
         say(f'done: {apk}. On the phone: install it, then copy {patched} to {REMOTE}/games/{g.id}/code and {bi.rfs.source(game)} to {REMOTE}/games/{g.id}/'); return
     bi.PROG.stage('install and copy to the phone')

@@ -1,0 +1,235 @@
+-- The C compiler identification is Clang 19.0.1
+-- The ASM compiler identification is Clang with GNU-like command-line
+-- Found assembler: /home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/hostedtoolcache/Python/3.12.16/x64/bin/python3 (found version "3.12.16") found components: Interpreter
+-- Configuring done (0.9s)
+-- Generating done (0.0s)
+-- Build files have been written to: /home/runner/work/nxnative2-android/nxnative2-android/build/host
+ninja: Entering directory `build/host'
+[1/192] game profile 0400921025B32000
+[2/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/loopfilter_arm.c.o
+[3/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/alloccommon.c.o
+[4/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/dc_only_idct_add_neon.c.o
+[5/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/copymem_neon.c.o
+[6/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/dequant_idct_neon.c.o
+[7/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/bilinearpredict_neon.c.o
+[8/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/iwalsh_neon.c.o
+[9/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/dequantizeb_neon.c.o
+[10/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/loopfiltersimplehorizontaledge_neon.c.o
+[11/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/shortidct4x4llm_neon.c.o
+[12/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/loopfiltersimpleverticaledge_neon.c.o
+[13/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/blockd.c.o
+[14/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/dequantize.c.o
+[15/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/entropy.c.o
+[16/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/entropymv.c.o
+[17/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/idct_blk_neon.c.o
+[18/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/entropymode.c.o
+[19/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/mbloopfilter_neon.c.o
+[20/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/vp8_loopfilter_neon.c.o
+[21/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/extend.c.o
+[22/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/findnearmv.c.o
+[23/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/idct_blk.c.o
+[24/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/generic/systemdependent.c.o
+[25/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/idctllm.c.o
+[26/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/modecont.c.o
+[27/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/mbpitch.c.o
+[28/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/quant_common.c.o
+[29/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/reconintra.c.o
+[30/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/reconintra4x4.c.o
+[31/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/setupintrarecon.c.o
+[32/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/rtcd.c.o
+[33/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/filter.c.o
+[34/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/swapyv12buffer.c.o
+[35/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/arm/neon/sixtappredict_neon.c.o
+[36/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/treecoder.c.o
+[37/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/dboolhuff.c.o
+[38/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/reconinter.c.o
+[39/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/loopfilter_filters.c.o
+[40/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/common/vp8_loopfilter.c.o
+[41/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/onyxd_if.c.o
+[42/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/detokenize.c.o
+[43/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/decodemv.c.o
+[44/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/vp8_dx_iface.c.o
+[45/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/arm/neon/vp9_iht16x16_add_neon.c.o
+[46/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/arm/neon/vp9_iht4x4_add_neon.c.o
+[47/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_common_data.c.o
+[48/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_blockd.c.o
+[49/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_alloccommon.c.o
+[50/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/threading.c.o
+[51/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_entropy.c.o
+[52/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_entropymode.c.o
+[53/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_filter.c.o
+[54/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_frame_buffers.c.o
+[55/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_entropymv.c.o
+[56/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/arm/neon/vp9_iht8x8_add_neon.c.o
+[57/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_mvref_common.c.o
+[58/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_idct.c.o
+[59/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_quant_common.c.o
+[60/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp8/decoder/decodeframe.c.o
+[61/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_pred_common.c.o
+[62/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_rtcd.c.o
+[63/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_reconinter.c.o
+[64/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_scale.c.o
+[65/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_scan.c.o
+[66/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_reconintra.c.o
+[67/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_loopfilter.c.o
+[68/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_seg_common.c.o
+[69/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_tile_common.c.o
+[70/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_decoder.c.o
+[71/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_job_queue.c.o
+[72/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_dsubexp.c.o
+[73/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/vp9_iface_common.c.o
+[74/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_detokenize.c.o
+[75/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/vp9_dx_iface.c.o
+[76/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_decoder.c.o
+[77/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_codec.c.o
+[78/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_image.c.o
+[79/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/common/vp9_thread_common.c.o
+[80/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx/src/vpx_encoder.c.o
+[81/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct16x16_1_add_neon.c.o
+[82/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_1_add_neon.c.o
+[83/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct16x16_add_neon.c.o
+[84/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_decodeframe.c.o
+[85/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct4x4_1_add_neon.c.o
+[86/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct4x4_add_neon.c.o
+[87/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct8x8_1_add_neon.c.o
+[88/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vp9/decoder/vp9_decodemv.c.o
+[89/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_135_add_neon.c.o
+[90/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_34_add_neon.c.o
+[91/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct32x32_add_neon.c.o
+[92/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve_avg_neon.c.o
+[93/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/idct8x8_add_neon.c.o
+[94/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve_neon.c.o
+[95/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve_copy_neon.c.o
+[96/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/bitreader.c.o
+[97/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/bitreader_buffer.c.o
+[98/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_scaled_convolve8_neon.c.o
+[99/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/loopfilter_neon.c.o
+[100/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/prob.c.o
+[101/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/loopfilter.c.o
+[102/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/skin_detection.c.o
+[103/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/vpx_dsp_rtcd.c.o
+[104/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_mem/vpx_mem.c.o
+[105/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/vpx_convolve8_neon.c.o
+[106/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_ports/aarch64_cpudetect.c.o
+[107/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/vpx_scale.c.o
+[108/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/vpx_convolve.c.o
+[109/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/yv12config.c.o
+[110/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/vpx_scale_rtcd.c.o
+[111/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/gen_scalers.c.o
+[112/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_util/vpx_thread.c.o
+[113/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/arm/intrapred_neon.c.o
+[114/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_util/vpx_write_yuv_frame.c.o
+[115/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_scale/generic/yv12extend.c.o
+[116/192] Generating gen/asm/entry.S
+[117/192] Generating gen/asm/nvn_entry.S
+[118/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/inv_txfm.c.o
+[119/192] Building C object CMakeFiles/nxloader.dir/loader.c.o
+[120/192] Linking C shared library libnxloader.so
+[121/192] Generating gen/asm/nvn_thunks.S
+[122/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_account.c.o
+[123/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_bigstack.c.o
+[124/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/crash.c.o
+[125/192] Building C object CMakeFiles/vpx.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/third_party/libvpx/vpx_dsp/intrapred.c.o
+[126/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c.o
+FAILED: [code=1] CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c.o 
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android29 --sysroot=/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DDM_ANDROID=1 -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/compat -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../host -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/nvn/include -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/nvn -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/tex -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/vulkan-headers/include -I/home/runner/work/nxnative2-android/nxnative2-android/build/host/gen/0400921025B32000 -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/libvpx -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/stb_vorbis -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fPIC -fsigned-char -include dm_android.h -std=gnu11 -O1 -g -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-deprecated-declarations -Wno-gnu-folding-constant -Wno-multichar -Wno-four-char-constants -Wno-unknown-pragmas -Wno-missing-braces -ffixed-x18 -fvisibility=hidden -fPIC -march=armv8.2-a+lse -MD -MT CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c.o -MF CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c.o.d -o CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c.o -c /home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:475:152: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  475 | HLE_FORCE_BIG("_ZN2nn5audio13StartAudioOutEPNS0_8AudioOutE", "start playback", Result, h_au_Start, void *g) { return au_start_at(g, dm_bigstack_caller(__builtin_return_address(0))); }
+      |                                                                                                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:475:133: error: incompatible integer to pointer conversion passing 'uintptr_t' (aka 'unsigned long') to parameter of type 'void *' [-Wint-conversion]
+  475 | HLE_FORCE_BIG("_ZN2nn5audio13StartAudioOutEPNS0_8AudioOutE", "start playback", Result, h_au_Start, void *g) { return au_start_at(g, dm_bigstack_caller(__builtin_return_address(0))); }
+      |                                                                                                                                     ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:458:42: note: passing argument to parameter 'lr' here
+  458 | static Result au_start_at(void *g, void *lr) {
+      |                                          ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:502:139: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  502 | HLE_FORCE_BIG("_ZN2nn5audio12StopAudioOutEPNS0_8AudioOutE", "stop playback", void, h_au_Stop, void *g) { au_stop_at(g, dm_bigstack_caller(__builtin_return_address(0))); }
+      |                                                                                                                                           ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:502:120: error: incompatible integer to pointer conversion passing 'uintptr_t' (aka 'unsigned long') to parameter of type 'void *' [-Wint-conversion]
+  502 | HLE_FORCE_BIG("_ZN2nn5audio12StopAudioOutEPNS0_8AudioOutE", "stop playback", void, h_au_Stop, void *g) { au_stop_at(g, dm_bigstack_caller(__builtin_return_address(0))); }
+      |                                                                                                                        ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:492:39: note: passing argument to parameter 'lr' here
+  492 | static void au_stop_at(void *g, void *lr) {   // lr NULL: the stop inside Close, not logged separately
+      |                                       ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:522:148: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  522 | HLE_FORCE_BIG("_ZN2nn5audio13CloseAudioOutEPNS0_8AudioOutE", "close the audio output", void, h_au_Close, void *g) { au_close(g, dm_bigstack_caller(__builtin_return_address(0))); }
+      |                                                                                                                                                    ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:522:129: error: incompatible integer to pointer conversion passing 'uintptr_t' (aka 'unsigned long') to parameter of type 'void *' [-Wint-conversion]
+  522 | HLE_FORCE_BIG("_ZN2nn5audio13CloseAudioOutEPNS0_8AudioOutE", "close the audio output", void, h_au_Close, void *g) { au_close(g, dm_bigstack_caller(__builtin_return_address(0))); }
+      |                                                                                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:503:37: note: passing argument to parameter 'lr' here
+  503 | static void au_close(void *g, void *lr) {
+      |                                     ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:636:97: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  636 |     ostream *o = os_of(g); o->state = OS_STARTED; return au_start_at(o->key, dm_bigstack_caller(__builtin_return_address(0)));
+      |                                                                                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:636:78: error: incompatible integer to pointer conversion passing 'uintptr_t' (aka 'unsigned long') to parameter of type 'void *' [-Wint-conversion]
+  636 |     ostream *o = os_of(g); o->state = OS_STARTED; return au_start_at(o->key, dm_bigstack_caller(__builtin_return_address(0)));
+      |                                                                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:458:42: note: passing argument to parameter 'lr' here
+  458 | static Result au_start_at(void *g, void *lr) {
+      |                                          ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:640:35: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  640 |     void *lr = dm_bigstack_caller(__builtin_return_address(0));
+      |                                   ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:640:11: error: incompatible integer to pointer conversion initializing 'void *' with an expression of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  640 |     void *lr = dm_bigstack_caller(__builtin_return_address(0));
+      |           ^    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:648:66: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  648 |     ostream *o = os_of(g); au_stop_at(o->key, dm_bigstack_caller(__builtin_return_address(0))); o->state = OS_STOPPED;
+      |                                                                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:648:47: error: incompatible integer to pointer conversion passing 'uintptr_t' (aka 'unsigned long') to parameter of type 'void *' [-Wint-conversion]
+  648 |     ostream *o = os_of(g); au_stop_at(o->key, dm_bigstack_caller(__builtin_return_address(0))); o->state = OS_STOPPED;
+      |                                               ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:492:39: note: passing argument to parameter 'lr' here
+  492 | static void au_stop_at(void *g, void *lr) {   // lr NULL: the stop inside Close, not logged separately
+      |                                       ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:660:41: error: incompatible pointer to integer conversion passing 'void *' to parameter of type 'uintptr_t' (aka 'unsigned long') [-Wint-conversion]
+  660 |     au_close(o->key, dm_bigstack_caller(__builtin_return_address(0)));
+      |                                         ^~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.h:61:40: note: passing argument to parameter 'ra' here
+   61 | uintptr_t dm_bigstack_caller(uintptr_t ra);
+      |                                        ^
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:660:22: error: incompatible integer to pointer conversion passing 'uintptr_t' (aka 'unsigned long') to parameter of type 'void *' [-Wint-conversion]
+  660 |     au_close(o->key, dm_bigstack_caller(__builtin_return_address(0)));
+      |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audio.c:503:37: note: passing argument to parameter 'lr' here
+  503 | static void au_close(void *g, void *lr) {
+      |                                     ^
+14 errors generated.
+[127/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle.c.o
+[128/192] Linking C static library libvpx.a
+[129/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c.o
+FAILED: [code=1] CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c.o 
+/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/bin/clang --target=aarch64-none-linux-android29 --sysroot=/home/runner/work/nxnative2-android/nxnative2-android/android-sdk/ndk/28.2.13676358/toolchains/llvm/prebuilt/linux-x86_64/sysroot -DDM_ANDROID=1 -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/compat -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../host -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/nvn/include -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/nvn -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../gfx/tex -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/vulkan-headers/include -I/home/runner/work/nxnative2-android/nxnative2-android/build/host/gen/0400921025B32000 -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/libvpx -I/home/runner/work/nxnative2-android/nxnative2-android/dm/android/../third_party/stb_vorbis -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security  -fPIC -fsigned-char -include dm_android.h -std=gnu11 -O1 -g -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable -Wno-format -Wno-deprecated-declarations -Wno-gnu-folding-constant -Wno-multichar -Wno-four-char-constants -Wno-unknown-pragmas -Wno-missing-braces -ffixed-x18 -fvisibility=hidden -fPIC -march=armv8.2-a+lse -MD -MT CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c.o -MF CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c.o.d -o CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c.o -c /home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c
+/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_cheats.c:62:10: fatal error: 'mach/vm_prot.h' file not found
+   62 | #include <mach/vm_prot.h>
+      |          ^~~~~~~~~~~~~~~~
+1 error generated.
+[130/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_codec.c.o
+[131/192] Building C object CMakeFiles/dmcore.dir/home/runner/work/nxnative2-android/nxnative2-android/dm/host/hle_audren.c.o
+ninja: build stopped: subcommand failed.

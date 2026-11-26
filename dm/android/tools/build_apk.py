@@ -1,9 +1,11 @@
-# Packs the Android app (no Gradle): the manifest linked by aapt2, lib/arm64-v8a/ (the loader libnxloader.so and a host per game, libdmhost_<title ID>.so), classes.dex
-# from dm/android/java (javac, then d8), the self test in assets/selftest (the synthetic module of dm/android/tests/selftest_nso.py, rewritten with DM_TARGET=android),
-# page-aligned by zipalign, signed by apksigner.
-# Usage: build_apk.py --sdk <Android SDK> --loader <libnxloader.so> --so <libdmhost_<id>.so> [--so ...] --selftest <folder of main.patched.bin, main.fixups.tsv, ...>
+# Packs the Android app (no Gradle): the manifest linked by aapt2, lib/arm64-v8a/ (the loader libnxloader.so and the one generic game host libdmhost.so),
+# classes.dex from dm/android/java (javac, then d8), the self test in assets/selftest (the synthetic module of dm/android/tests/selftest_nso.py, rewritten with
+# DM_TARGET=android), page-aligned by zipalign, signed by apksigner.
+# Usage: build_apk.py --sdk <Android SDK> --loader <libnxloader.so> --host <libdmhost.so> --selftest <folder of main.patched.bin, main.fixups.tsv, ...>
 #   [--demo <folder>] --keystore <.jks> -o <out.apk> [--label <app name>] [--icon <icon.jpg or .png>] [--build-tools 36.0.0] [--platform android-35]
 # The app is "nxnative" with the adaptive icon in apk/res: its launcher shows the games' own icons and names. --label and --icon name it otherwise.
+# The one generic host (libdmhost.so) runs every game: it reads each game's profile from the game's folder at run time (game_profile_rt.c), so the phone can
+# port a game on the device and run the resulting pack with this single host.
 # The keystore is made on first use (keytool, a debug key: alias nxnative, password "android"); keep it outside the repository.
 import argparse, os, shutil, subprocess, sys, tempfile, zipfile
 from xml.sax.saxutils import quoteattr
@@ -17,15 +19,13 @@ def run(*a):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--sdk', required=True); ap.add_argument('--selftest', required=True)
-    ap.add_argument('--so', action='append', required=True, help='a game host, libdmhost_<title ID>.so (once per game)'); ap.add_argument('--loader', required=True, help='libnxloader.so')
+    ap.add_argument('--host', required=True, help='the generic game host, libdmhost.so'); ap.add_argument('--loader', required=True, help='libnxloader.so')
     ap.add_argument('--demo', help='folder for assets/demo: the synthetic shaders and their SPIR-V (tests/synth_shaders.py, tools/spv_android.py)')
     ap.add_argument('--keystore', required=True); ap.add_argument('-o', '--out', required=True)
     ap.add_argument('--label', help="the app's name in the launcher (default nxnative)"); ap.add_argument('--icon', help="the app's launcher icon: a JPEG or PNG (the game's icon.jpg)")
     ap.add_argument('--build-tools', default='36.0.0'); ap.add_argument('--platform', default='android-35')
     a = ap.parse_args()
-    for so in a.so:
-        n = os.path.basename(so)
-        if not (n.startswith('libdmhost_') and n.endswith('.so')): sys.exit(f'--so must be a game host named libdmhost_<title ID>.so: {so}')
+    if not (os.path.basename(a.host) == 'libdmhost.so' and a.host.endswith('.so')): sys.exit(f'--host must be the generic game host named libdmhost.so: {a.host}')
     bt = os.path.join(a.sdk, 'build-tools', a.build_tools); exe = '.exe' if os.name == 'nt' else ''; bat = '.bat' if os.name == 'nt' else ''
     jar = os.path.join(a.sdk, 'platforms', a.platform, 'android.jar')
     if not os.path.exists(a.keystore):
@@ -60,7 +60,7 @@ def main():
         with zipfile.ZipFile(base, 'a', zipfile.ZIP_DEFLATED) as z:
             z.write(os.path.join(d, 'classes.dex'), 'classes.dex')
             z.write(a.loader, 'lib/arm64-v8a/libnxloader.so')
-            for so in sorted(set(a.so)): z.write(so, f'lib/arm64-v8a/{os.path.basename(so)}')
+            z.write(a.host, 'lib/arm64-v8a/libdmhost.so')
             n = 0
             for f in sorted(os.listdir(a.selftest)):
                 if f.startswith('main.'): z.write(os.path.join(a.selftest, f), f'assets/selftest/{f}'); n += 1

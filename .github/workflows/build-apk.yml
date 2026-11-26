@@ -136,7 +136,7 @@ jobs:
           set -eo pipefail
           python dm/android/tools/build_apk.py --sdk "$ANDROID_HOME" \
             --loader build/host/libnxloader.so \
-            --so "build/host/libdmhost_${GAME}.so" \
+            --host build/host/libdmhost.so \
             --selftest build/selftest/patched \
             --demo build/demo/spv \
             --keystore "$RUNNER_TEMP/nxnative-debug.jks" \

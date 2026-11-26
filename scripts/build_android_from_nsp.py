@@ -8,8 +8,10 @@
 #   Every build also writes those events to a journal, <data>/builds/<time>-<pid>.jsonl (start and exit events around them), whatever its --progress: the desktop app
 #   shows a build started from a console too
 # One app carries every game: its launcher (dm/android/java Launcher.java) lists the games on the phone, Android/data/org.nxnative.android/files/games/<title ID>/,
-# and the app holds a host per game, lib/arm64-v8a/libdmhost_<title ID>.so, started by its loader (dm/android/loader.c). The hosts built on this computer are kept in a
-# library (<data>/hosts/<title ID>/: %LOCALAPPDATA%\nxnative\android on Windows, ~/.local/share/nxnative/android elsewhere), and every APK is packed from all of them,
+# and the app holds ONE generic game host, lib/arm64-v8a/libdmhost.so, started by its loader (dm/android/loader.c). The host reads each game's profile at run
+# time from the game's folder (game_profile_rt.c), so the phone can port a game on the device and run the pack with this single host. The host built on this
+# computer is kept in a library (<data>/: %LOCALAPPDATA%\nxnative\android on Windows, ~/.local/share/nxnative/android elsewhere) together with the loader, the
+# self test and a registry of the games built (their metadata: title ID, name, version, icon), and every APK is packed from the one host,
 # so building a second game keeps the first in the app.
 # Steps (the extraction and the rewrite are build_ipa_from_nsp.py's own, reused):
 #   1. find the game profile from the title ID (dm/games/<id>); a game without one is surveyed and packed from a provisional profile (<NSP folder>/<id>_build/profile),
@@ -103,7 +105,7 @@ def build_nx_extract(work, logs, env):   # build_ipa_from_nsp.py's, with Windows
     return exe
 
 
-def build_host(sdk, game_id, work, logs, env):   # → (the game's host, the loader, the NDK)
+def build_host(sdk, game_id, work, logs, env):   # → (the generic host, the loader, the NDK). The host is one libdmhost.so for every game (game_profile_rt.c).
     ndk = newest(sdk / 'ndk', 'NDK'); cm = newest(sdk / 'cmake', 'CMake') / 'bin'
     exe = '.exe' if os.name == 'nt' else ''
     bdir = work / 'android_host'
@@ -111,7 +113,7 @@ def build_host(sdk, game_id, work, logs, env):   # → (the game's host, the loa
             f'-DCMAKE_TOOLCHAIN_FILE={ndk / "build/cmake/android.toolchain.cmake"}', '-DANDROID_ABI=arm64-v8a', '-DANDROID_PLATFORM=android-29',
             f'-DGAME={game_id}', f'-DPython3_EXECUTABLE={sys.executable}'], logs / 'android_cmake.log', env=env)
     bi.run([cm / f'ninja{exe}', '-C', bdir, 'dmhost_app', 'nxloader'], logs / 'android_host.log', env=env)
-    return bdir / f'libdmhost_{game_id}.so', bdir / 'libnxloader.so', ndk
+    return bdir / 'libdmhost.so', bdir / 'libnxloader.so', ndk
 
 
 def build_selftest(ndk, work, logs, env):
@@ -151,35 +153,35 @@ def build_shaders(sv, dirs, work, logs, env, g, dlc_roms=(), gpu='default'):
     return out
 
 
-# ---------------- The library of game hosts ----------------
-def library_add(gid, so, loader, selftest, meta):   # the game's host, and the loader and self test of the latest build (they do not depend on the game)
-    lib = data_dir(); d = lib / 'hosts' / gid; d.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(so, d / so.name)
-    (d / 'meta.json').write_text(json.dumps(dict(meta, built=datetime.datetime.now().isoformat(timespec='seconds')), indent=1), encoding='utf-8')
+# ---------------- The library: the one generic host, and the games built with it ----------------
+def library_add(gid, so, loader, selftest, meta):   # the one generic host (libdmhost.so), the loader and self test of the latest build, and this game's registry entry
+    lib = data_dir()
+    (lib / 'host').mkdir(parents=True, exist_ok=True); shutil.copyfile(so, lib / 'host' / so.name)   # libdmhost.so: one host for every game
     (lib / 'loader').mkdir(exist_ok=True); shutil.copyfile(loader, lib / 'loader' / loader.name)
     st = lib / 'selftest'; shutil.rmtree(st, ignore_errors=True); shutil.copytree(selftest, st)
+    reg = lib / 'games'; reg.mkdir(exist_ok=True)
+    (reg / f'{gid}.json').write_text(json.dumps(dict(meta, built=datetime.datetime.now().isoformat(timespec='seconds')), indent=1), encoding='utf-8')
 
 
-def library():   # {title ID: (host, meta)} of the hosts built on this computer
-    out = {}
-    for d in sorted((data_dir() / 'hosts').glob('*')):
-        so = d / f'libdmhost_{d.name}.so'
-        if so.is_file():
-            try: meta = json.loads((d / 'meta.json').read_text(encoding='utf-8'))
-            except (OSError, ValueError): meta = {}
-            out[d.name] = (so, meta)
+def library():   # {'host': libdmhost.so, 'games': {title ID: meta}} of the host built on this computer and the games registered with it
+    lib = data_dir(); out = {'host': None, 'games': {}}
+    host = lib / 'host' / 'libdmhost.so'
+    if host.is_file(): out['host'] = host
+    for d in sorted((lib / 'games').glob('*.json')) if (lib / 'games').is_dir() else []:
+        try: out['games'][d.stem] = json.loads(d.read_text(encoding='utf-8'))
+        except (OSError, ValueError): pass
     return out
 
 
-def make_apk(sdk, logs, env):   # the app with every host in the library → its path
-    lib = data_dir(); hosts = library()
+def make_apk(sdk, logs, env):   # the app with the one generic host → its path
+    lib = data_dir(); L = library()
     loader, st = lib / 'loader' / 'libnxloader.so', lib / 'selftest'
-    if not hosts or not loader.is_file() or not st.is_dir(): raise BuildError(f'no game host built on this computer yet ({lib}): build a game first')
+    if not L['host'] or not loader.is_file() or not st.is_dir(): raise BuildError(f'no game host built on this computer yet ({lib}): build a game first')
     KEYSTORE.parent.mkdir(parents=True, exist_ok=True)
     apk = lib / 'nxnative.apk'
-    bi.run([sys.executable, REPO / 'dm/android/tools/build_apk.py', '--sdk', sdk, '--loader', loader, *[x for so, _ in hosts.values() for x in ('--so', so)],
+    bi.run([sys.executable, REPO / 'dm/android/tools/build_apk.py', '--sdk', sdk, '--loader', loader, '--host', L['host'],
             '--selftest', st, '--keystore', KEYSTORE, '-o', apk], logs / 'android_apk.log', env=env)
-    names = [m.get('name') or gid for gid, (_, m) in hosts.items()]
+    names = [m.get('name') or gid for gid, m in L['games'].items()]
     say(f'app: {", ".join(names)} ({apk})')
     return apk
 
@@ -388,10 +390,14 @@ def migrate_legacy(serial, gid, nacp_local=None):
     return True
 
 
-def push_game(serial, gid, game, patched, spv, font, aoc, lang, work, logs, meta):
+def game_profile_txt(g):   # the game's profile.txt for the phone (the generic host reads it, game_profile_rt.c): the game.tsv content, the format the host parses
+    return (g.dir / 'game.tsv').read_text(encoding='utf-8') if g.dir else ''
+
+
+def push_game(serial, gid, game, patched, spv, font, aoc, lang, work, logs, meta, profile=''):
     """The game's files → files/games/<gid>/ (the RomFS with --sync: a repeat copies only what changed)"""
     dst = f'{REMOTE}/games/{gid}'
-    parts = ['the one-game install', 'font', 'code'] + ['shaders'] * bool(spv) + ['RomFS'] + ['DLC'] * aoc.is_dir() + ['launcher files', 'permissions']
+    parts = ['the one-game install', 'font', 'code'] + ['shaders'] * bool(spv) + ['RomFS'] + ['DLC'] * aoc.is_dir() + ['profile', 'launcher files', 'permissions']
     def part(name, step=None):   # the part in the step's name; the count is the part's files or bytes (counting), or the parts when it has none
         bi.PROG.set(step=f'{step or name} · part {parts.index(name) + 1} of {len(parts)}'); bi.PROG.set(done=parts.index(name), total=len(parts), unit='parts')
     part('the one-game install', 'looking for the one-game install'); migrate_legacy(serial, gid, game / 'control.nacp')
@@ -413,6 +419,10 @@ def push_game(serial, gid, game, patched, spv, font, aoc, lang, work, logs, meta
         adb(serial, 'shell', 'rm', '-f', f'{dst}/RomFS.img')
         push_dir(serial, rom, dst, 'RomFS', logs / 'adb_push_romfs.log', sync=True)
     if aoc.is_dir(): part('DLC'); push_dir(serial, aoc, dst, 'aoc', logs / 'adb_push_aoc.log', sync=True)
+    part('profile')   # the generic host reads <game>/profile.txt at start-up (game_profile_rt.c): the game's profile in the host's format
+    if profile:
+        pf = work / 'android_profile.txt'; pf.write_text(profile, encoding='utf-8')
+        adb(serial, 'push', pf, f'{dst}/profile.txt')
     part('launcher files')
     # the launcher (dm/android/java Launcher.java): the game's icon and control data (name, version, languages), its defaults (the language picked with --language) and
     # game.json; env.txt is the player's and stays as it is (a key it sets wins over the settings screen)
@@ -457,7 +467,7 @@ def check(sdk_arg):
     for t in ('keytool', 'javac'):
         v = shutil.which(t); row(f'JDK {t}', v, v or 'not found', 'install a JDK (17 or newer) and put its bin folder on PATH')
     row('signing key', True, f'{KEYSTORE}' + ('' if KEYSTORE.is_file() else ' (made at the first build)'))
-    hosts = library(); row('game hosts', True, f'{len(hosts)} in {data_dir() / "hosts"}' + (': ' + ', '.join(hosts) if hosts else ''))
+    L = library(); row('game host', True, f'{L["host"]}' + (f' ({len(L["games"])} game{"s" if len(L["games"]) != 1 else ""} registered)' if L['games'] else ''))
     return rows
 
 
@@ -520,7 +530,7 @@ def info(nsp_dir):
                                        'romfs_bytes': Path(rom).stat().st_size if bi.rfs.is_image(rom) else None,
                                        'built': (work / f'patched_android_{v}' / 'main.fixups.tsv').is_file(),
                                        'captures': len(list((d / 'glslc_capture').glob('*.glslc')))}   # run-time shaders on this computer (pull_captures)
-        h = library().get(g.id); out['host'] = h[1] if h else None
+        h = library()['games'].get(g.id); out['host'] = h if h else None
     return out
 
 
@@ -610,7 +620,7 @@ def main(argv):
     if a.push_only or a.update_shaders:   # what an earlier build left: the extraction, the rewrite, the shaders, the font and the host in the library
         game, spv, font = ex / pkg_ver, work / 'spv', work / 'font'
         need = [p for p in (game / 'control.nacp', patched / 'main.fixups.tsv', font) if not p.exists()]
-        if need or g.id not in library(): raise BuildError(f'{g.id} {pkg_ver} was not built on this computer yet ({", ".join(map(str, need)) or "no host in the library"}): build it first')
+        if need or g.id not in library()['games']: raise BuildError(f'{g.id} {pkg_ver} was not built on this computer yet ({", ".join(map(str, need)) or "no host in the library"}): build it first')
         if not spv.is_dir(): spv = None
         new = pull_captures(serial, g.id, capture_dir, logs) if prov else 0
         if a.update_shaders and not prov: say('a registered profile: its shader tables name the captures they were made from, nothing is pulled')
@@ -666,7 +676,7 @@ def main(argv):
     rom = bi.rfs.source(game)
     push_game(serial, g.id, game, patched, spv, font, work / 'aoc', lang, work, logs,
               {'title_id': g.id, 'name': label, 'version': pkg_ver, 'display': nacp.version(game / 'control.nacp'),
-               'romfs_bytes': Path(rom).stat().st_size if bi.rfs.is_image(rom) else None})
+               'romfs_bytes': Path(rom).stat().st_size if bi.rfs.is_image(rom) else None}, game_profile_txt(g))
     bi.PROG.end(f'{REMOTE}/games/{g.id}')
     say(f'done: open nxnative on the phone and pick "{label}". Log: {REMOTE}/log.txt (adb logcat -s nxnative)')
 

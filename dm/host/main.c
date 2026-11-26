@@ -78,26 +78,26 @@ const dm_game_t *dm_game_cur(void) {
 // The modules to load when the command line names none: those of the profile's build row for main's build (its build ID from the rewriter's main.fixups.tsv), else all the profile's
 // modules. A game's versions may differ in modules: Mario Kart World's base game has main subsdk0 (a Mono runtime) sdk, its update 1.8.0 main subsdk0 (the movie player) subsdk1 sdk
 static int profile_modules(const char *dir, const char **names) {
-    const char *all[] = DM_GAME_MODULES;
-    const struct { const char *build, *mods; } rows[] = {DM_GAME_BUILD_MODULES};
+    const char *all[16]; int nall = g_game.nmod < 16 ? g_game.nmod : 16;
+    for (int k = 0; k < nall; k++) all[k] = g_game.modules[k];
     char path[1024], line[256], bid[33] = "";
     snprintf(path, sizeof path, "%s/main.fixups.tsv", dir);
     FILE *f = fopen(path, "r");
     while (f && fgets(line, sizeof line, f)) if (sscanf(line, "# BUILD_ID %32s", bid) == 1) break;
     if (f) fclose(f);
-    for (size_t r = 0; *bid && r < sizeof rows / sizeof *rows; r++) {
-        if (!rows[r].build || strcmp(rows[r].build, bid)) continue;
+    for (int r = 0; *bid && r < g_game.nbuild; r++) {
+        if (!g_game.build_id[r] || strcmp(g_game.build_id[r], bid)) continue;
         int n = 0;
-        for (int k = 0; k < DM_GAME_NMOD; k++) {   // in the profile's load order; build_modules (game.py) made the row from it
-            const char *s = strstr(rows[r].mods, all[k]); size_t l = strlen(all[k]);
-            while (s && !((s == rows[r].mods || s[-1] == ' ') && (!s[l] || s[l] == ' '))) s = strstr(s + 1, all[k]);
+        for (int k = 0; k < nall; k++) {   // in the profile's load order
+            const char *s = g_game.build_mods[r]; size_t l = strlen(all[k]);
+            while (s && !((s == g_game.build_mods[r] || s[-1] == ' ') && (!s[l] || s[l] == ' '))) s = strstr(s + 1, all[k]);
             if (s) names[n++] = all[k];
         }
-        if (n < DM_GAME_NMOD) LOG("modules of main's build %.16s: %s (the profile lists %d)", bid, rows[r].mods, DM_GAME_NMOD);
+        if (n < nall) LOG("modules of main's build %.16s: %s (the profile lists %d)", bid, g_game.build_mods[r], nall);
         return n;
     }
-    for (int k = 0; k < DM_GAME_NMOD; k++) names[k] = all[k];
-    return DM_GAME_NMOD;
+    for (int k = 0; k < nall; k++) names[k] = all[k];
+    return nall;
 }
 
 // Host loading (independent of UIKit / Metal): read the NSO, relocate, forced take-over, probes / tick gate / keys, start prefetch. By default it runs synchronously in main;
@@ -109,6 +109,16 @@ static void host_preload(int argc, char **argv) {
     g_t0_ns = proc_start_mono_ns();
     flags_init();
     if (argc < 2) die("usage: dmhost <dir> [mod...] [-- game arguments...]");
+    // Load the game profile at run time (game_profile_rt.c) when the front end names it (DM_PROFILE, set by the app for a real game). The app's
+    // front end already loaded the profile (and set up a fallback for the self test); the CLI host loads none unless DM_PROFILE is given, and then
+    // runs with the profile's constants. A missing profile leaves the defaults.
+    {
+        const char *pf = getenv("DM_PROFILE");
+        if (pf && *pf) {
+            if (dm_game_load(pf)) LOG("[RED] no game profile at %s: the host's constants are the defaults", pf);
+            else LOG("game profile: %s (%s)", pf, DM_GAME_ID);
+        }
+    }
     // Time zone: the game converts absolute time to local time along two paths, both ending in the host libc -- nn::time::ToCalendarTime (hle_time.c, localtime_r) and the guest libc's
     // localtime_r / mktime (hle_table.c wires them straight to the host). So only when the host follows the system time zone do the original game's screens (chronicle discovery time etc.) show this machine's time.
     // Only deterministic comparison (DM_FIXED_TIME) pins it to UTC: the same replay must convert to the same calendar time on this machine (UTC+8) and on the second Mac (UTC+9)

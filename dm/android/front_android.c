@@ -33,7 +33,7 @@ enum { ST_START, ST_SELFTEST, ST_PASS, ST_FAIL, ST_GAME, ST_ENDED, ST_CRASHED, S
 static int g_demo_frames;   // frames the NVN picture check presented (nvn_demo.c)
 static _Atomic int g_state = ST_START;
 static _Atomic uint64_t g_frames;
-static char g_ext[512], g_int[512], g_game[600], g_last[160];   // g_game: <external files>/games/<title ID>
+static char g_ext[512], g_int[512], g_game_dir[600], g_last[160];   // g_game_dir: <external files>/games/<title ID>
 static pthread_mutex_t g_txt_mu = PTHREAD_MUTEX_INITIALIZER;
 static struct android_app *g_app;
 
@@ -173,7 +173,7 @@ static void *guest_thread(void *p) {
 void front_run(void (*guest)(void)) { guest(); dm_slots_x18_restore(); }
 static void start_host(void) {
     char code[700], buf[700];
-    snprintf(code, sizeof code, "%s/code", g_game);
+    snprintf(code, sizeof code, "%s/code", g_game_dir);
     // a folder per game: saves/<id> (hle_fs.c makes <DM_SAVE>_device beside it for a device save), the driver's pipeline cache in cache/<id>. Saves of the one-game
     // installs (internal files/save) are copied into saves/<id> by the launcher before the game first starts there (Launcher.java migrate); the old folder stays
     snprintf(buf, sizeof buf, "%s/saves", g_int); mkdirs(buf);
@@ -186,17 +186,18 @@ static void start_host(void) {
     snprintf(buf, sizeof buf, "%s/dump", g_ext); setenv("DM_DUMP_DIR", buf, 0); if (getenv("DM_VK_DUMP")) mkdirs(buf);   // gfx_vk_draw.inc dump_write (files/dump_now asks for one)
     snprintf(buf, sizeof buf, "%s/main.fixups.tsv", code);
     if (exists(buf) && !getenv("DM_FORCE_SELFTEST")) {
-        setenv("DM_ROOT", g_game, 0);
-        snprintf(buf, sizeof buf, "%s/RomFS", g_game);   // a RomFS folder, or the packing script's RomFS image (hle_fs.c reads one as it is)
-        if (!exists(buf)) snprintf(buf, sizeof buf, "%s/RomFS.img", g_game);
+        setenv("DM_ROOT", g_game_dir, 0);
+        snprintf(buf, sizeof buf, "%s/profile.txt", g_game_dir); setenv("DM_PROFILE", buf, 0);   // host_preload (main.c) reads it
+        snprintf(buf, sizeof buf, "%s/RomFS", g_game_dir);   // a RomFS folder, or the packing script's RomFS image (hle_fs.c reads one as it is)
+        if (!exists(buf)) snprintf(buf, sizeof buf, "%s/RomFS.img", g_game_dir);
         if (exists(buf)) setenv("DM_ROMFS", buf, 0);
-        snprintf(buf, sizeof buf, "%s/aoc", g_game); if (exists(buf)) setenv("DM_AOC_DIR", buf, 0);
-        snprintf(buf, sizeof buf, "%s/spv", g_game); setenv("DM_SPV_DIR", buf, 0);   // the game's shaders translated for Vulkan (gfx_vk_draw.inc)
+        snprintf(buf, sizeof buf, "%s/aoc", g_game_dir); if (exists(buf)) setenv("DM_AOC_DIR", buf, 0);
+        snprintf(buf, sizeof buf, "%s/spv", g_game_dir); setenv("DM_SPV_DIR", buf, 0);   // the game's shaders translated for Vulkan (gfx_vk_draw.inc)
         // Shaders the game compiles at run time with its own GLSLC are saved there (hle_glslc.c: only new ones, and only a game that calls glslcCompile writes any); the packing
         // script pulls the new ones on its next build or install and translates them (build_android_from_nsp.py pull_captures). env.txt can point it elsewhere
-        snprintf(buf, sizeof buf, "%s/glslc_capture", g_game); setenv("DM_GLSLC_CAPTURE", buf, 0);
+        snprintf(buf, sizeof buf, "%s/glslc_capture", g_game_dir); setenv("DM_GLSLC_CAPTURE", buf, 0);
         // Shared fonts (hle_sdk16.c): the button icons from the packing script's nintendo_ext.ttf; the standard font is the system's Roboto
-        snprintf(buf, sizeof buf, "%s/font", g_game); if (exists(buf)) setenv("DM_FONT_DIR", buf, 0);
+        snprintf(buf, sizeof buf, "%s/font", g_game_dir); if (exists(buf)) setenv("DM_FONT_DIR", buf, 0);
         if (exists("/system/fonts/Roboto-Regular.ttf")) setenv("DM_SHARED_FONT", "/system/fonts/Roboto-Regular.ttf", 0);
         g_argv[0] = "dmhost"; g_argv[1] = strdup(code); g_argc = 2;
         atomic_store(&g_state, ST_GAME); LOG("game in %s", code);
@@ -369,7 +370,11 @@ static void status_draw(void) {
         snprintf(line, sizeof line, "frames presented: %llu", (unsigned long long)atomic_load(&g_frames)); text(line, u, y, 0.9f * u, 0xFFE0E0E0); y += 1.2f * u;
         text("Loading the game...", u, y, 0.55f * u, 0xFFFFD080); y += 0.8f * u;
     }
-    if (st == ST_SELFTEST || st == ST_PASS) { text(getenv("DM_FORCE_SELFTEST") ? "Self test (from the launcher)" : "No game in Android/data/org.nxnative.android/files/games/" DM_GAME_ID "/", u, y, 0.55f * u, 0xFFA0A0A0); y += 0.8f * u; }
+    if (st == ST_SELFTEST || st == ST_PASS) {
+        static char nogame[256];
+        snprintf(nogame, sizeof nogame, "No game in Android/data/org.nxnative.android/files/games/%s/", DM_GAME_ID);
+        text(getenv("DM_FORCE_SELFTEST") ? "Self test (from the launcher)" : nogame, u, y, 0.55f * u, 0xFFA0A0A0); y += 0.8f * u;
+    }
     pthread_mutex_lock(&g_txt_mu); snprintf(line, sizeof line, "%.120s", g_last); pthread_mutex_unlock(&g_txt_mu);
     text(line, u, (float)g_ext2.height - u, 0.45f * u, 0xFF909090);
     // bitmap → staging buffer (RGBA bytes; swapped to BGRA for a BGRA swapchain)
@@ -590,11 +595,21 @@ void android_main(struct android_app *app) {
     g_app = app;
     snprintf(g_ext, sizeof g_ext, "%s", app->activity->externalDataPath ? app->activity->externalDataPath : app->activity->internalDataPath);
     snprintf(g_int, sizeof g_int, "%s", app->activity->internalDataPath);
-    snprintf(g_game, sizeof g_game, "%s/games/%s", g_ext, DM_GAME_ID);
+    // The title ID comes from the loader (DM_TITLE_ID, set before the host was dlopened): the game profile, which carries the ID, is not loaded yet.
+    const char *tid = getenv("DM_TITLE_ID");
+    if (!tid || strlen(tid) != 16) tid = "0000000000000000";
+    snprintf(g_game_dir, sizeof g_game_dir, "%s/games/%s", g_ext, tid);
     mkdirs(g_ext); mkdirs(g_int);
     log_start();
-    LOG("nxnative for Android: %s (%s), files %s, internal %s", DM_GAME_NAME, DM_GAME_ID, g_game, g_int);
-    env_file(g_ext, "env.txt", 1); env_file(g_game, "launcher.txt", 0);
+    // Load the game profile from the game's folder (game_profile_rt.c): the generic host reads its constants here, not from a compiled-in header.
+    // A missing profile (the self test, a game not yet ported) falls back to a minimal one so the DM_GAME_* macros have safe values.
+    { char p[700]; snprintf(p, sizeof p, "%s/profile.txt", g_game_dir);
+      if (dm_game_load(p)) {
+          if (getenv("DM_FORCE_SELFTEST")) { LOG("no profile in %s: running the self test with a minimal profile", p); g_game.id = strdup("0000000000000000"); g_game.name = strdup("self test"); g_game.nmod = 1; g_game.modules[0] = strdup("main"); }
+          else LOG("[RED] no game profile in %s: port the game on the device (the Builds tab) or install one there", p);
+      } }
+    LOG("nxnative for Android: %s (%s), files %s, internal %s", DM_GAME_NAME, DM_GAME_ID, g_game_dir, g_int);
+    env_file(g_ext, "env.txt", 1); env_file(g_game_dir, "launcher.txt", 0);
     (*app->activity->vm)->AttachCurrentThread(app->activity->vm, &g_env, NULL);
     app->onAppCmd = on_cmd; app->onInputEvent = on_input;
     for (;;) {

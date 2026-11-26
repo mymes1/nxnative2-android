@@ -1,34 +1,31 @@
 # Android build of the host (arm64-v8a): the shared host sources (dm/host, the C parts of dm/gfx) with the Darwin stand-ins of compat/, the
 # Android front end and graphics backend. Two products from one set of objects, and the app's loader:
-#   libdmhost_<GAME>.so  the game's host in the app: one APK carries the host of every game packed on the computer (scripts/build_android_from_nsp.py)
+#   libdmhost.so         the GENERIC game host in the app: one host runs every game. The game profile is read at run time from the game's
+#                        folder (game_profile_rt.c: <dir>/profile.txt), not compiled in, so the phone can port a game on the device and run
+#                        the resulting pack with this one host (scripts/build_android_from_nsp.py's per-game libdmhost_<GAME>.so is gone).
 #   dmhost               a command-line host for adb shell (headless: no window, silent audio unless DM_AUDIO=1), like the Mac's dmhost
-#   libnxloader.so       the NativeActivity's library: starts the host of the game the launcher picked (loader.c)
-# Configure with the NDK's toolchain file and the game profile, as the Mac host is built per profile:
+#   libnxloader.so       the NativeActivity's library: starts the host for the game the launcher picked (loader.c)
+# Configure with the NDK's toolchain file. GAME is accepted for the shader/profile tools but no longer selects a compiled-in profile:
 #   cmake -G Ninja -S dm/android -B <build dir> -DCMAKE_TOOLCHAIN_FILE=<ndk>/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a
-#         -DANDROID_PLATFORM=android-29 -DGAME=<base game title ID> [-DDM_GAMES_DIR=<profiles folder outside dm/games>]
+#         -DANDROID_PLATFORM=android-29 [-DGAME=<base game title ID>]
 cmake_minimum_required(VERSION 3.22)
 project(dmhost_android C ASM)
 
-if(NOT GAME)
-  message(FATAL_ERROR "GAME is not set: -DGAME=<base game title ID> (dm/games/<id>)")
-endif()
 find_package(Python3 REQUIRED COMPONENTS Interpreter)
 set(DM ${CMAKE_CURRENT_SOURCE_DIR}/..)
 set(GEN ${CMAKE_CURRENT_BINARY_DIR}/gen)
-file(MAKE_DIRECTORY ${GEN}/${GAME} ${GEN}/asm)
+file(MAKE_DIRECTORY ${GEN}/asm)
 
-# The profile header (dm/games/game.py header), regenerated at every configure and build; game.py writes it only when it changes
-set(GAME_H ${GEN}/${GAME}/game_profile.h)
-set(GAME_ENV)
-if(DM_GAMES_DIR)
-  set(GAME_ENV ${CMAKE_COMMAND} -E env DM_GAMES_DIR=${DM_GAMES_DIR})
-endif()
+# The profile header is now a thin shim to the runtime profile (game_profile_rt.h): the host reads the
+# game's constants from <game dir>/profile.txt at start-up, not from a compile-time generated header. The
+# generated file keeps the name game_profile.h so dm.h and front_android.c include it unchanged.
+set(GAME_H ${GEN}/game_profile.h)
 add_custom_target(game_profile ALL
-  COMMAND ${GAME_ENV} ${Python3_EXECUTABLE} ${DM}/games/game.py header ${GAME} ${GAME_H}
-  BYPRODUCTS ${GAME_H} COMMENT "game profile ${GAME}")
-execute_process(COMMAND ${GAME_ENV} ${Python3_EXECUTABLE} ${DM}/games/game.py header ${GAME} ${GAME_H} RESULT_VARIABLE rc)
-if(NOT rc EQUAL 0)
-  message(FATAL_ERROR "game.py header ${GAME} failed")
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${GEN}
+  COMMAND ${CMAKE_COMMAND} -E touch ${GAME_H}
+  BYPRODUCTS ${GAME_H} COMMENT "runtime game profile shim")
+if(NOT EXISTS ${GAME_H})
+  file(WRITE ${GAME_H} "// Generated: the generic host reads its game profile at run time (game_profile_rt.c).\n#pragma once\n#include \"game_profile_rt.h\"\n")
 endif()
 
 # Assembly: the Mach-O sources converted to ELF (tools/asm_elf.py)
@@ -91,7 +88,7 @@ add_library(dmcore OBJECT ${HOST_C} ${GFX_C} ${ANDROID_C} ${ASM_ELF})
 add_dependencies(dmcore game_profile)
 target_include_directories(dmcore PUBLIC
   ${CMAKE_CURRENT_SOURCE_DIR}/compat ${DM}/host ${DM}/gfx/nvn/include ${DM}/gfx/nvn ${DM}/gfx/tex ${DM}/third_party/vulkan-headers/include
-  ${GEN}/${GAME} ${DM}/third_party/libvpx ${DM}/third_party/stb_vorbis ${DAV1D}/include)
+  ${GEN} ${DM}/third_party/libvpx ${DM}/third_party/stb_vorbis ${DAV1D}/include)
 # x18 holds the guest thread's slot block (dm.h dm_slot_get): the compiler must never use it (Android reserves it by default; stated anyway)
 target_compile_options(dmcore PRIVATE
   $<$<COMPILE_LANGUAGE:C>:-include dm_android.h -std=gnu11 -O1 -g -Wall -Wno-unused-function -Wno-unused-variable -Wno-unused-but-set-variable
@@ -107,7 +104,7 @@ target_include_directories(dmhost_app PRIVATE $<TARGET_PROPERTY:dmcore,INTERFACE
 target_compile_options(dmhost_app PRIVATE -include dm_android.h -ffixed-x18 -O1 -g -Wall)
 target_link_libraries(dmhost_app ${DM_LIBS} jnigraphics)
 target_link_options(dmhost_app PRIVATE -Wl,--no-undefined -Wl,-z,max-page-size=16384 -u ANativeActivity_onCreate)
-set_target_properties(dmhost_app PROPERTIES OUTPUT_NAME dmhost_${GAME})
+set_target_properties(dmhost_app PROPERTIES OUTPUT_NAME dmhost)
 add_library(nxloader SHARED ${CMAKE_CURRENT_SOURCE_DIR}/loader.c)
 target_compile_options(nxloader PRIVATE -O2 -Wall -fvisibility=hidden)
 target_link_libraries(nxloader log android dl)
@@ -132,7 +129,7 @@ if(DM_TESTS)
     if(A_PROFILE)
       target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/compat ${DM}/host ${A_PROFILE})
     else()
-      target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/compat ${DM}/host ${GEN}/${GAME} ${DM}/games/${GAME})
+      target_include_directories(${name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/compat ${DM}/host ${GEN})
     endif()
     target_compile_options(${name} PRIVATE $<$<COMPILE_LANGUAGE:C>:-include dm_android.h -Wno-unused-function -Wno-format -Wno-deprecated-declarations> -O1 -g -ffixed-x18)
     target_compile_definitions(${name} PRIVATE ${A_DEFS})

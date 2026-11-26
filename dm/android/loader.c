@@ -1,7 +1,9 @@
-// The NativeActivity's library (apk/AndroidManifest.xml android.app.lib_name): one APK carries the host of every game packed on the computer, each built for its
-// profile as lib/arm64-v8a/libdmhost_<title ID>.so (CMakeLists.txt), and this loader starts the one the launcher picked (java Launcher.java): the activity's intent
-// extra "game" names it. The game runs in a process of its own (android:process=":game"): a host cannot be loaded twice, so every launch is a fresh process.
-// Extra "selftest" (boolean): the picked host runs its built-in self test instead of its game (front_android.c reads DM_FORCE_SELFTEST).
+// The NativeActivity's library (apk/AndroidManifest.xml android.app.lib_name): the app carries ONE generic game host (libdmhost.so, built by
+// CMakeLists.txt), which reads its game profile at run time from the game's folder (game_profile_rt.c). This loader starts that one host for the game
+// the launcher picked (java Launcher.java): the activity's intent extra "game" names the title ID. The title ID is handed to the host through the
+// DM_TITLE_ID environment variable, because the profile (which carries the ID) is not loaded yet when the host's front end builds the game's path.
+// The game runs in a process of its own (android:process=":game"): a host cannot be loaded twice, so every launch is a fresh process.
+// Extra "selftest" (boolean): the host runs its built-in self test instead of its game (front_android.c reads DM_FORCE_SELFTEST).
 #include <android/log.h>
 #include <android/native_activity.h>
 #include <dlfcn.h>
@@ -40,12 +42,13 @@ __attribute__((visibility("default"))) void ANativeActivity_onCreate(ANativeActi
     char game[64]; int selftest = 0;
     if (!intent_extras(a, game, sizeof game, &selftest) || !valid_id(game)) {
         LOG("[RED] loader: started without a game (intent extra \"game\" = a title ID): nothing to run"); ANativeActivity_finish(a); return; }
-    char lib[96]; snprintf(lib, sizeof lib, "libdmhost_%s.so", game);
-    void *h = dlopen(lib, RTLD_NOW | RTLD_GLOBAL);   // the app's native library folder is on the loader's search path
-    if (!h) { LOG("[RED] loader: %s is not in this app (%s): update the app from the computer (scripts/build_android_from_nsp.py)", lib, dlerror()); ANativeActivity_finish(a); return; }
+    // the one generic host, and the title ID it needs before its profile is loaded
+    setenv("DM_TITLE_ID", game, 1);
+    void *h = dlopen("libdmhost.so", RTLD_NOW | RTLD_GLOBAL);   // the app's native library folder is on the loader's search path
+    if (!h) { LOG("[RED] loader: libdmhost.so is not in this app (%s)", dlerror()); ANativeActivity_finish(a); return; }
     void (*create)(ANativeActivity *, void *, size_t) = (void (*)(ANativeActivity *, void *, size_t))dlsym(h, "ANativeActivity_onCreate");
-    if (!create) { LOG("[RED] loader: %s has no ANativeActivity_onCreate", lib); ANativeActivity_finish(a); return; }
+    if (!create) { LOG("[RED] loader: libdmhost.so has no ANativeActivity_onCreate"); ANativeActivity_finish(a); return; }
     if (selftest) setenv("DM_FORCE_SELFTEST", "1", 1);
-    LOG("loader: %s%s", lib, selftest ? " (self test)" : "");
+    LOG("loader: libdmhost.so for %s%s", game, selftest ? " (self test)" : "");
     create(a, saved, saved_size);
 }

@@ -47,18 +47,21 @@ class Json(unittest.TestCase):
 
 
 class Library(Base):
-    def test_hosts_kept_per_game_and_all_in_the_apk(self):
+    def test_one_generic_host_and_the_games_registry(self):
         for gid in (GID, '0100A6301214E000'):
-            so = self.tmp / f'libdmhost_{gid}.so'; so.write_bytes(b'host'); loader = self.tmp / 'libnxloader.so'; loader.write_bytes(b'loader')
+            so = self.tmp / 'libdmhost.so'; so.write_bytes(b'host'); loader = self.tmp / 'libnxloader.so'; loader.write_bytes(b'loader')
             st = self.tmp / 'st'; st.mkdir(exist_ok=True); (st / 'main.patched.bin').write_bytes(b'x')
             ba.library_add(gid, so, loader, st, {'name': gid})
-        self.assertEqual(sorted(ba.library()), sorted([GID, '0100A6301214E000']))
+        L = ba.library()
+        self.assertEqual(L['host'], self.tmp / 'data' / 'host' / 'libdmhost.so')
+        self.assertEqual(sorted(L['games']), sorted([GID, '0100A6301214E000']))
         ran = []
         with mock.patch.object(ba.bi, 'run', lambda cmd, log, env=None: ran.append([str(c) for c in cmd])):
             apk = ba.make_apk(Path('sdk'), self.tmp, {})
         self.assertEqual(apk, self.tmp / 'data' / 'nxnative.apk')
         cmd = ran[0]
-        self.assertEqual([cmd[i + 1] for i, c in enumerate(cmd) if c == '--so'], [str(self.tmp / 'data/hosts' / g / f'libdmhost_{g}.so') for g in sorted([GID, '0100A6301214E000'])])
+        self.assertIn('--host', cmd)
+        self.assertEqual(cmd[cmd.index('--host') + 1], str(self.tmp / 'data' / 'host' / 'libdmhost.so'))
         self.assertIn('--loader', cmd)
 
     def test_no_host_no_apk(self):

@@ -131,7 +131,7 @@ uint64_t gate_dispatch(uint64_t ret_addr, uint64_t *regs);
 // IDs 19 / 20 belonged to the removed movie request-ring workaround. Old rewritten modules may still contain them; without callbacks those gates are harmless passes through.
 enum { OBS_UE_MALLOC = 21,                                       // DRAGON QUEST VII Reimagined 1.2.0: Unreal's allocator object just made (hle_uemalloc.c)
        OBS_MAX = 22 };
-void gate_obs_set(int id, void (*fn)(const uint64_t *regs));
+void gate_obs_set(int id, void (*fn)(uint64_t *regs, int param));
 int gate_obs_present(int id);
 uint64_t now_ns(void);
 uint64_t guest_ns(void);              // Guest clock (hle_os.c; does not advance while frozen, guest_clock_freeze)

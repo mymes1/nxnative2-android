@@ -36,6 +36,19 @@ uintptr_t dm_bigstack_top(uintptr_t sp) {
     return (uintptr_t)top;
 }
 
+// The game's call site for the take-over running on this thread: dm_bigstack_enter stores x30 (the return
+// address the stub left, i.e. the game's call site) here before calling the implementation; dm_bigstack_caller
+// reads it back. Thread-local: each guest thread has its own big stack and its own call site.
+static __thread uintptr_t g_bs_site;
+
+void dm_bigstack_set_site(uintptr_t site) { g_bs_site = site; }
+
+uintptr_t dm_bigstack_caller(uintptr_t ra) {
+    // A take-over always runs through dm_bigstack_enter, which has set the site; if it is ever called
+    // straight off (ra already the caller's return address), pass ra through unchanged.
+    return g_bs_site ? g_bs_site : ra;
+}
+
 // x16 = implementation. Frame (on the original stack, 0xa0 bytes): +0x00 x0-x8, x16, +0x50 d0-d7, +0x90 x29 / x30. After the switch the original sp is stored at the new stack top and restored when the implementation returns
 __asm__(
     ".text\n"
@@ -58,6 +71,8 @@ __asm__(
     "    mov x0, sp\n"
     "    bl " DM_SYM("dm_bigstack_top") "\n"
     "    mov x17, x0\n"
+    "    ldr x0, [sp, #0x90]\n"
+    "    bl " DM_SYM("dm_bigstack_set_site") "\n"
     "    ldp x0, x1, [sp, #0x00]\n"
     "    ldp x2, x3, [sp, #0x10]\n"
     "    ldp x4, x5, [sp, #0x20]\n"

@@ -5,30 +5,44 @@
 // configuration for AV1, so the sequence header comes from the stream, where every key frame carries one (AV1 5.5); a changed one makes a new session. A temporal unit goes in whole, its OBUs in
 // the low-overhead format WebM and the SDK's demuxer keep them in (each with its size). Decoding is synchronous and a temporal unit shows at most one frame, in presentation order, so no queue
 #include "hle.h"
+#ifdef __APPLE__
 #include <VideoToolbox/VideoToolbox.h>
+#endif
 #include "dav1d/dav1d.h"
 #include "hle_movie_av1.h"
 
 struct mav1 {
     uint8_t seq[512]; size_t nseq;
+#ifdef __APPLE__
     CMVideoFormatDescriptionRef fd; VTDecompressionSessionRef vs;
     CVPixelBufferRef got, locked;
+#endif
     int soft;                     // dav1d decodes: no hardware decoder, DM_AV1_DAV1D=1, or a stream VideoToolbox refused (until mav1_reset)
     Dav1dContext *dav1d; Dav1dPicture pic; int has_pic;
     uint8_t *y8, *uv; size_t ny8, nuv;   // dav1d's picture as NV12: the chroma interleaved, and the luma of a 10- or 12-bit stream shifted to 8 bits
     int red;
 };
-static int hw_av1(void) { const char *e = getenv("DM_AV1_DAV1D"); return !(e && *e && *e != '0') && VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1); }
+static int hw_av1(void) {
+#ifdef __APPLE__
+    const char *e = getenv("DM_AV1_DAV1D"); return !(e && *e && *e != '0') && VTIsHardwareDecodeSupported(kCMVideoCodecType_AV1);
+#else
+    return 0;   // Android has no VideoToolbox: AV1 always decodes with dav1d
+#endif
+}
 mav1 *mav1_new(void) { mav1 *a = calloc(1, sizeof *a); if (!a) die("movie: AV1 decoder allocation failed"); a->soft = !hw_av1(); return a; }
 const char *mav1_backend(const mav1 *a) { return a->soft ? "dav1d" : "VideoToolbox"; }
 static void unlock_picture(mav1 *a) {
+#ifdef __APPLE__
     if (a->locked) { CVPixelBufferUnlockBaseAddress(a->locked, kCVPixelBufferLock_ReadOnly); CVPixelBufferRelease(a->locked); a->locked = NULL; }
+#endif
     if (a->has_pic) { dav1d_picture_unref(&a->pic); a->has_pic = 0; }
 }
 static void av1_close(mav1 *a) {
+#ifdef __APPLE__
     if (a->vs) { VTDecompressionSessionWaitForAsynchronousFrames(a->vs); VTDecompressionSessionInvalidate(a->vs); CFRelease(a->vs); a->vs = NULL; }
     if (a->fd) { CFRelease(a->fd); a->fd = NULL; }
     if (a->got) { CVPixelBufferRelease(a->got); a->got = NULL; }
+#endif
 }
 void mav1_reset(mav1 *a) { unlock_picture(a); av1_close(a); a->nseq = 0; if (a->dav1d) dav1d_flush(a->dav1d); a->soft = !hw_av1(); }
 void mav1_free(mav1 *a) { if (a) { mav1_reset(a); if (a->dav1d) dav1d_close(&a->dav1d); free(a->y8); free(a->uv); free(a); } }
@@ -112,12 +126,15 @@ static const uint8_t *find_seq(const uint8_t *p, size_t n, size_t *len) {
     }
     return NULL;
 }
+#ifdef __APPLE__
 static void av1_on_frame(void *ref, void *src, OSStatus st, VTDecodeInfoFlags fl, CVImageBufferRef img, CMTime pts, CMTime dur) {
     (void)src; (void)fl; (void)pts; (void)dur; mav1 *a = ref;
     if (st || !img) { if (st && !a->red++) LOG("[RED] movie: AV1 decode error (VideoToolbox %d, first case)", (int)st); return; }
     if (a->got) CVPixelBufferRelease(a->got);
     a->got = CVPixelBufferRetain(img);
 }
+#endif
+#ifdef __APPLE__
 static int av1_open(mav1 *a, const uint8_t *seq, size_t n) {
     av1_close(a);
     uint8_t rec[4 + sizeof a->seq]; int w = 0, h = 0;
@@ -141,6 +158,8 @@ static int av1_open(mav1 *a, const uint8_t *seq, size_t n) {
     static int once; if (!once++) LOG("[movie] AV1: VideoToolbox decoding %dx%d, profile %d level %d", w, h, rec[1] >> 5, rec[1] & 31);
     return 1;
 }
+#endif
+
 // ---- dav1d ----
 static void d_log(void *cookie, const char *fmt, va_list ap) {
     (void)cookie; char b[256]; vsnprintf(b, sizeof b, fmt, ap);
@@ -202,6 +221,7 @@ static int decode_dav1d(mav1 *a, const uint8_t *data, size_t n, mav1_picture *ou
 int mav1_decode(mav1 *a, const uint8_t *data, size_t n, mav1_picture *out) {
     unlock_picture(a);
     if (a->soft) return decode_dav1d(a, data, n, out);
+#ifdef __APPLE__
     size_t seqn = 0; const uint8_t *seq = find_seq(data, n, &seqn);
     if (seq && (seqn != a->nseq || memcmp(seq, a->seq, seqn) || !a->vs) && !av1_open(a, seq, seqn)) {   // a stream VideoToolbox does not take: dav1d from this temporal unit on (it holds the sequence header)
         LOG("[movie] AV1: dav1d decodes the stream instead"); av1_close(a); a->soft = 1;
@@ -225,4 +245,7 @@ int mav1_decode(mav1 *a, const uint8_t *data, size_t n, mav1_picture *out) {
                           !m || CFEqual(m, kCVImageBufferYCbCrMatrix_ITU_R_709_2) ? 2 : CFEqual(m, kCVImageBufferYCbCrMatrix_ITU_R_2020) ? 5 : 1, 0};
     if (m) CFRelease(m);
     return 1;
+#else
+    return 0;   // Android: no VideoToolbox, so hw_av1() is 0 and a->soft is set: the dav1d path above returned
+#endif
 }

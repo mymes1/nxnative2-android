@@ -58,8 +58,8 @@ typedef struct { const char *name; void *fn; const char *why; } hle_force_ent;
 // Big-stack call site (hle_bigstack.c): dm_bigstack_enter saves the game's call site (x30 at entry) into a
 // thread-local before calling the implementation; dm_bigstack_caller gives it back for log lines. Off the
 // big-stack path (ra already the caller's return address) it passes ra through.
-uintptr_t dm_bigstack_caller(uintptr_t ra);
-void dm_bigstack_set_site(uintptr_t site);
+void *dm_bigstack_caller(void *ra);
+void dm_bigstack_set_site(void *site);
 
 // Library applets (hle_oe.c): an applet the game opens takes the focus; the host sends the focus pair
 // (15 OutOfFocus / 15 InFocus) around the call. DM_APPLET marks one such applet.

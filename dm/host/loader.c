@@ -439,15 +439,58 @@ static unsigned rebind(module_t *k, module_t *nm, int load) {
     return n;
 }
 
+static void nro_reset_data(module_t *m) {
+    if (m->loaded) die("NRO %s: loaded again while it is loaded%s", m->name, m->alone ? " alone (a JIT plugin whose environment was not destroyed)" : "");
+    if (!m->pristine) {
+        if (!(m->pristine = malloc(m->pristine_len ? m->pristine_len : 1))) die("%s: pristine data copy", m->name);
+        memcpy(m->pristine, m->base + m->data_off, m->pristine_len);
+    }
+    if (m->loads) {
+        memcpy(m->base + m->data_off, m->pristine, m->pristine_len);
+        memset(m->base + m->data_off + m->pristine_len, 0, m->key_page_off - m->data_off - m->pristine_len);
+    }
+    m->loads++; m->loaded = 1;
+}
+
 void nro_load(module_t *m) {
     pthread_rwlock_wrlock(&g_modules_mu);
-    if (m->loads) memcpy(m->base + m->data_off, m->pristine, m->pristine_len);
-    m->loads++; m->loaded = 1; g_loaded[g_nloaded++] = m;
+    nro_reset_data(m); g_loaded[g_nloaded++] = m;
     relocate(m);
     unsigned n = 0;
-    for (int i = 0; i < g_nmod; i++) if (g_mod[i].loaded && &g_mod[i] != m) n += rebind(&g_mod[i], m, 1);
+    for (int i = 0; i < g_nmod; i++) if (g_mod[i].loaded && !g_mod[i].alone && &g_mod[i] != m) n += rebind(&g_mod[i], m, 1);   // a module loaded alone binds nothing outside itself
     pthread_rwlock_unlock(&g_modules_mu);
     LOG("NRO %s loaded (load %u, base %p): %u imports of the modules loaded before bound to it", m->name, m->loads, m->base, n);
+}
+
+// A JIT plugin (hle_jit.c) runs in the jit service's own process on Horizon, beside the game but not linked with it: it is relocated against itself only (its own definitions,
+// undefined weak symbols 0; Super Mario 64's EmuSystemJITPlugin.nro has only those and relative relocations) and never takes part in the game's symbol lookups
+void nro_load_alone(module_t *m) {
+    pthread_rwlock_wrlock(&g_modules_mu);
+    nro_reset_data(m); m->alone = 1;
+    relocs_t rl = relocs_of(m);
+    unsigned nrel = rl.relr ? relr_apply(m, rl.relr, rl.relrsz, (uint64_t)m->base) : 0, nsym = 0;
+    for (int t = 0; t < 2; t++)
+        for (uint64_t i = 0; i < rl.n[t]; i++) {
+            const Elf64_Rela *r = &rl.tab[t][i];
+            uint64_t *where = (uint64_t *)(m->base + r->r_offset);
+            unsigned type = ELF64_R_TYPE(r->r_info);
+            if (type == R_AARCH64_RELATIVE) { *where = (uint64_t)m->base + r->r_addend; nrel++; continue; }
+            const Elf64_Sym *s = &m->symtab[ELF64_R_SYM(r->r_info)];
+            if (!s->st_shndx && ELF64_ST_BIND(s->st_info) != STB_WEAK) die("%s: %s is not defined in the module, and a module loaded alone binds nothing outside itself", m->name, m->strtab + s->st_name);
+            uint64_t v = s->st_shndx ? (uint64_t)m->base + s->st_value : 0;
+            *where = type == R_AARCH64_JUMP_SLOT ? v : v + r->r_addend; nsym++;
+        }
+    pthread_rwlock_unlock(&g_modules_mu);
+    LOG("NRO %s loaded alone (load %u, base %p): %u relative relocations, %u to its own or undefined weak symbols", m->name, m->loads, m->base, nrel, nsym);
+}
+
+// Its fini has run (the caller's). Deactivated as nro_unload deactivates a linked one; nothing to unbind, as no other module was bound to it
+void nro_unload_alone(module_t *m) {
+    pthread_rwlock_wrlock(&g_modules_mu);
+    if (!m->alone) die("NRO %s: unloaded alone but not loaded alone", m->name);
+    m->alone = 0; m->loaded = 0;
+    pthread_rwlock_unlock(&g_modules_mu);
+    LOG("NRO %s unloaded (it was loaded alone)", m->name);
 }
 
 void nro_unload(module_t *m) {
@@ -455,9 +498,46 @@ void nro_unload(module_t *m) {
     m->loaded = 0;
     for (int i = 0; i < g_nloaded; i++) if (g_loaded[i] == m) { memmove(g_loaded + i, g_loaded + i + 1, (size_t)(--g_nloaded - i) * sizeof *g_loaded); break; }
     unsigned n = 0;
-    for (int i = 0; i < g_nmod; i++) if (g_mod[i].loaded) n += rebind(&g_mod[i], m, 0);
+    for (int i = 0; i < g_nmod; i++) if (g_mod[i].loaded && !g_mod[i].alone) n += rebind(&g_mod[i], m, 0);
     pthread_rwlock_unlock(&g_modules_mu);
     LOG("NRO %s unloaded: %u imports that pointed into it bound again", m->name, n);
+}
+
+// ---- A served nn::jit image (hle_jit.c, dm/tools/jit_capture.py) ----
+// A host that runs no code made at run time (iOS; the Mac with DM_JIT_SERVE=<dir>) serves the JIT plugin's output from an image built on the Mac. Its code reaches the modules
+// with PC-relative addresses, so the modules are mapped at the image's canonical layout: one reservation holding the code memory at 0 and every module at the offset jit.tsv gives
+// it (mod rows), the distances the image was built for. Modules the layout does not name are mapped as before. On Android the plugin runs (DM_JIT_SERVE is not set by default).
+static uint8_t *g_jit_base; static uint64_t g_jit_span;
+static struct { char name[16]; uint64_t off, size, pre; } g_jit_mod[256]; static int g_njit_mod;
+// Where the image is: DM_JIT_SERVE; NULL: the plugin runs (the default)
+const char *dm_jit_serve_dir(void) {
+    static int init; static char dir[1024];
+    if (!init) {
+        init = 1; const char *e = getenv("DM_JIT_SERVE");
+        if (e && *e) strlcpy(dir, e, sizeof dir);
+    }
+    return dir[0] ? dir : NULL;
+}
+uint8_t *dm_jit_layout_base(void) { return g_jit_base; }
+static void jit_layout_init(void) {
+    const char *d = dm_jit_serve_dir(); if (!d) return;
+    char path[1100], line[512]; snprintf(path, sizeof path, "%s/jit.tsv", d);
+    FILE *f = fopen(path, "r"); if (!f) die("DM_JIT_SERVE: no %s", path);
+    unsigned long long rx = 0, ro = 0, img = 0;
+    while (fgets(line, sizeof line, f)) {
+        char nm[32]; unsigned long long off, size, pre;
+        if (sscanf(line, "layout\t%llx\t%llx\t%llx", &rx, &ro, &img) == 3) continue;
+        if (sscanf(line, "mod\t%31s\t%llx\t%llx\t%llx", nm, &off, &size, &pre) == 4 && g_njit_mod < 256) {
+            strlcpy(g_jit_mod[g_njit_mod].name, nm, 16); g_jit_mod[g_njit_mod].off = off; g_jit_mod[g_njit_mod].size = size; g_jit_mod[g_njit_mod].pre = pre; g_njit_mod++;
+            if (off + size > g_jit_span) g_jit_span = off + size;
+        }
+        if (!strncmp(line, "req\t", 4)) break;
+    }
+    fclose(f);
+    if (!rx || !g_njit_mod) die("%s: no layout", path);
+    g_jit_base = mmap(NULL, g_jit_span, PROT_NONE, MAP_PRIVATE | MAP_ANON, -1, 0);
+    if (g_jit_base == MAP_FAILED) die("jit layout: cannot reserve %#llx bytes", (unsigned long long)g_jit_span);
+    LOG("jit layout (%s): code memory and %d modules in %#llx bytes at %p", path, g_njit_mod, (unsigned long long)g_jit_span, g_jit_base);
 }
 
 // DM_LOADHASH=1 (diagnostics): after loading, output an address-independent sha256 per module, to prove that the load results of "early start / no early start" are byte-identical.
@@ -612,6 +692,7 @@ void load_modules(const char *dir, const char **names, int n) {
         read_layout(m, dir);
     }
     create_keys();
+    jit_layout_init();
     for (int i = 0; i < n; i++) {
         module_t *m = &g_mod[i];
         t = now_ns(); map_image(m, dir); tm += now_ns() - t;   // On return the code area is already read-only+execute; from here on the loader only writes data

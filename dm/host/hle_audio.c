@@ -323,7 +323,14 @@ static void au_start_device(void *p) {
 static void au_request_start(aout *a) {
     if (!a->au || g_suspended || a->start_phase != AU_IDLE) return;
     a->start_phase = AU_STARTING;
+#ifdef __APPLE__
     dispatch_async_f(dispatch_get_global_queue(QOS_CLASS_USER_INITIATED, 0), a, au_start_device);
+#else
+    // Android: no Grand Central Dispatch. A HAL start can block for seconds, so run au_start_device on a
+    // detached worker thread rather than on the caller's (the guest audio thread).
+    pthread_t t;
+    if (pthread_create(&t, NULL, (void *(*)(void *))au_start_device, a) == 0) pthread_detach(t);
+#endif
 }
 // Watchdog (real output only): an AudioUnit that is started while the app is in focus must keep calling back. iOS stops calling back without telling the AudioUnit when another audio session takes over
 // (Siri, an alarm, a call) or the media services reset; the output's buffers were then never released, and a game whose audio thread waits for them (Wwise's poll-only output, FMOD) stayed silent for good.

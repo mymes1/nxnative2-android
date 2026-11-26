@@ -22,6 +22,7 @@ uint64_t now_ns(void);
 // held, enter with 1 before waiting and balance with 0 after reacquiring it.
 void dm_thread_native_wait(int entering);
 uint64_t guest_ns(void);              // Guest clock (hle_os.c; does not advance while frozen, guest_clock_freeze)
+uint64_t guest_ticks(void);           // The system counter the game reads (hle_os.c; 19.2 / 31.25 MHz ticks)
 int dm_detclock_enabled(void);
 void dm_guest_clock_advanced(void);
 uint64_t dm_guest_frame(void);        // Incremented each time the host presents a frame; unaffected by machine load
@@ -53,6 +54,18 @@ typedef struct { const char *name; void *fn; const char *why; } hle_force_ent;
     __asm__(DM_BIGSTACK_STUB(#cname));                                                           \
     __attribute__((used, section(DM_SECT("swforce")))) static const hle_force_ent hle_force_##cname = {mangled, (void *)(uintptr_t)cname##_bs, why}; \
     static ret cname(__VA_ARGS__)
+
+// Big-stack call site (hle_bigstack.c): dm_bigstack_enter saves the game's call site (x30 at entry) into a
+// thread-local before calling the implementation; dm_bigstack_caller gives it back for log lines. Off the
+// big-stack path (ra already the caller's return address) it passes ra through.
+uintptr_t dm_bigstack_caller(uintptr_t ra);
+void dm_bigstack_set_site(uintptr_t site);
+
+// Library applets (hle_oe.c): an applet the game opens takes the focus; the host sends the focus pair
+// (15 OutOfFocus / 15 InFocus) around the call. DM_APPLET marks one such applet.
+void dm_applet_enter(const char *name);
+void dm_applet_leave(void);
+#define DM_APPLET(name) do { dm_applet_enter(name); dm_applet_leave(); } while (0)
 
 // Operation mode (0 handheld / 1 docked): owned by hle_oe.c, and the hid controller style follows it; the front end can switch it at runtime
 int dm_opmode(void);

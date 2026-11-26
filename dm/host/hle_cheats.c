@@ -1093,12 +1093,29 @@ static void flag_file(char *out, size_t n, const char *what) { snprintf(out, n, 
 // left them. files_drain waits for everything queued: before the engine reads <build>.enabled back (states_load) and at
 // a clean exit, so nothing is lost or read stale. The queue's blocks take no lock of this file: a drain under g_lock
 // cannot deadlock
+#ifdef __APPLE__
 static dispatch_queue_t files_queue(void) {
     static dispatch_queue_t q; static dispatch_once_t once;
     dispatch_once(&once, ^{ q = dispatch_queue_create("nxnative.cheats.files", DISPATCH_QUEUE_SERIAL); });
     return q;
 }
 static void files_drain(void) { dispatch_sync(files_queue(), ^{}); }
+#else
+// Android: no Grand Central Dispatch. The state files are small and written rarely (a menu toggle, a one-pass
+// cheat), so each write runs inline on the calling thread; files_drain is then a no-op. The write helpers take no
+// lock of this file, so running them under g_lock (where the callers hold it) cannot deadlock.
+static void files_drain(void) { }
+#endif
+
+// The body of running_update's queued write: the safe-mode flag file, or its removal. Takes the strdup'd path and
+// build (freed here), and re-checks g_exiting so a flag queued just before a clean exit does not come back after it.
+static void running_write(char *path, char *build, int want) {
+    if (!atomic_load(&g_exiting)) {
+        if (want) { FILE *f = fopen(path, "w"); if (f) { fprintf(f, "%s\n", build); fclose(f); } }
+        else unlink(path);
+    }
+    free(path); free(build);
+}
 
 // The safe-mode flag: <dir>/.cheats-running-<title> exists while some cheat runs (a plain cheat on, or the masters while
 // not in safe mode, with the master switch on); a clean exit removes it (dm_cheats_exit), a crash leaves it for the next
@@ -1120,13 +1137,25 @@ static void running_update(void) {
     int want = any && atomic_load(&g_master);
     char *path = strdup(p), *build = strdup(g_build);
     if (!path || !build) { free(path); free(build); return; }
+#ifdef __APPLE__
     dispatch_async(files_queue(), ^{
-        if (!atomic_load(&g_exiting)) {
-            if (want) { FILE *f = fopen(path, "w"); if (f) { fprintf(f, "%s\n", build); fclose(f); } }
-            else unlink(path);
-        }
-        free(path); free(build);
+        running_write(path, build, want);
     });
+#else
+    running_write(path, build, want);
+#endif
+}
+
+// The body of states_save's queued write: the enabled states to a temporary beside the file, renamed over the old
+// one (fopen("w") truncates first, so an exit or crash mid-write would leave the saved toggles empty; the rename is
+// atomic). Frees the strdup'd/malloc'd text and path.
+static void states_write(char *text, char *path) {
+    char tmp[1500]; snprintf(tmp, sizeof tmp, "%s.tmp", path);
+    FILE *f = fopen(tmp, "w");
+    if (!f) LOG("cheats: cannot write %s (errno %d)", tmp, errno);
+    else if (fputs(text, f) < 0 || fclose(f)) { LOG("cheats: cannot write %s (errno %d)", tmp, errno); unlink(tmp); }
+    else if (rename(tmp, path)) { LOG("cheats: cannot rename %s over %s (errno %d)", tmp, path, errno); unlink(tmp); }
+    free(text); free(path);
 }
 
 // Save the enabled states: one key per line, <build>.enabled in the cheats folder (masters are always on, labels never
@@ -1146,16 +1175,13 @@ static void states_save(void) {
         char k[NAME_MAX + 16]; cheat_key(c, k, sizeof k);
         o += (size_t)snprintf(text + o, cap - o, "%s\n", k);
     }
+#ifdef __APPLE__
     dispatch_async(files_queue(), ^{
-        // Written to a temporary beside it and renamed over the old file: fopen("w") truncates first, so an exit (or a
-        // crash) in the middle would leave the saved toggles empty; the rename is atomic, the old file stays until then
-        char tmp[1500]; snprintf(tmp, sizeof tmp, "%s.tmp", path);
-        FILE *f = fopen(tmp, "w");
-        if (!f) LOG("cheats: cannot write %s (errno %d)", tmp, errno);
-        else if (fputs(text, f) < 0 || fclose(f)) { LOG("cheats: cannot write %s (errno %d)", tmp, errno); unlink(tmp); }
-        else if (rename(tmp, path)) { LOG("cheats: cannot rename %s over %s (errno %d)", tmp, path, errno); unlink(tmp); }
-        free(text); free(path);
+        states_write(text, path);
     });
+#else
+    states_write(text, path);
+#endif
     running_update();
 }
 

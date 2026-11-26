@@ -71,15 +71,25 @@ jobs:
           dotnet-version: '10.0.x'   # dmsh_xlate.dll (the shader translator) runs on the .NET 10 runtime
 
       - name: Android SDK
-        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd   # v4.0.4
+        run: |
+          {
+            set -euxo pipefail
+            mkdir -p "$ANDROID_HOME/cmdline-tools"
+            curl -sSL -o /tmp/cmdline-tools.zip https://dl.google.com/android/repository/commandlinetools-linux-15859902_latest.zip
+            unzip -q /tmp/cmdline-tools.zip -d "$ANDROID_HOME/cmdline-tools"
+            mv "$ANDROID_HOME/cmdline-tools/cmdline-tools" "$ANDROID_HOME/cmdline-tools/latest"
+            yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses
+            "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
+              "platform-tools" "platforms;android-35" "build-tools;36.0.0" "ndk;28.2.13676358" "cmake;3.22.1"
+          } 2>&1 | tee /tmp/sdk_setup.log
+
+      - name: Upload SDK setup log (diagnostics)
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9   # v7.0.2
         with:
-          android_sdk_directory: ${{ github.workspace }}/android-sdk
-          packages: |
-            platform-tools
-            platforms;android-35
-            build-tools;36.0.0
-            ndk;28.2.13676358
-            cmake;3.22.1
+          name: sdk-setup-log
+          path: /tmp/sdk_setup.log
+          if-no-files-found: ignore
 
       # The Mali pass's checks, with the NDK: the port of spv_readonly.h in spv_android.py against the C itself, and
       # the pass over a game's packed shaders (dm/tools/tests/test_spv_readonly.py, test_spv_mali.py).

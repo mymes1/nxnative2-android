@@ -170,6 +170,19 @@ int dm_sdk_major(void) {
     return major;
 }
 
+// 1 when the sdk module was built for the Switch 2 (its spec string "spec: Ounce"). Shared by mem_init_once (hle_svc.c) and the guest tick rate (hle_os.c).
+int dm_sdk_ounce(void) {
+    static int ounce = -1;
+    if (ounce >= 0) return ounce;
+    ounce = 0;
+    for (int i = 0; i < g_nmod; i++) if (!strcmp(g_mod[i].name, "sdk")) {
+        const char *b = (const char *)g_mod[i].base + g_mod[i].ro_off, *e = (const char *)g_mod[i].base + g_mod[i].key_page_off;
+        if (memmem(b, (size_t)(e - b), "spec: Ounce", 11)) ounce = 1;
+    }
+    if (ounce) LOG("sdk: built for the Switch 2 (spec: Ounce)");
+    return ounce;
+}
+
 // Cross-module symbol resolution: first look for a definition in the loaded modules, and only if not found hand over to HLE / stubs
 static uint64_t resolve_sym(module_t *m, const char *name) {
     void *p = loaded_sym(name); if (p) return (uint64_t)p;

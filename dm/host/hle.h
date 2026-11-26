@@ -22,6 +22,7 @@ uint64_t now_ns(void);
 // held, enter with 1 before waiting and balance with 0 after reacquiring it.
 void dm_thread_native_wait(int entering);
 void dm_thread_service_request(void);   // an HLE call that is a blocking service request on Horizon: the caller gives up its core (hle_thread.c)
+void dm_thread_service_connect(void);   // a service connect: wait for started threads to be dispatched into guest code, then a round trip (hle_thread.c)
 uint64_t guest_ns(void);              // Guest clock (hle_os.c; does not advance while frozen, guest_clock_freeze)
 uint64_t guest_ticks(void);           // The system counter the game reads (hle_os.c; 19.2 / 31.25 MHz ticks)
 int dm_detclock_enabled(void);

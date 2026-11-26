@@ -32,7 +32,7 @@ One app carries every game packed on the computer. Its launcher (`java/org/nxnat
 ground, one cream action (Play), the game's own colours washed behind its screen; the app's icon is the adaptive icon in `apk/res` (the mark: two halves of a controller,
 cream on ink, with a monochrome layer), which `tools/build_apk.py` links unless `--icon` names another.
 
-- **A host per game.** The host is built for one profile, so the APK holds one per game, `lib/arm64-v8a/libdmhost_<title ID>.so`. The NativeActivity's library is
+- **One generic host.** The host reads its profile at run time, so the APK holds one for every game, `lib/arm64-v8a/libdmhost.so`. The NativeActivity's library is
   `libnxloader.so` (`loader.c`): it reads the intent extra `game` (the title ID) and forwards `ANativeActivity_onCreate` to that game's host. A game folder whose host the APK
   lacks is listed as needing an app update.
 - **A process per game.** The game runs in `:game` (`apk/AndroidManifest.xml`): a host is loaded once per process, so starting another game ends the running one, after
@@ -75,10 +75,10 @@ With the Android SDK (NDK, CMake 3.22, build-tools), a JDK (keytool) and Python 
 ```sh
 cmake -G Ninja -S dm/android -B <build> -DCMAKE_TOOLCHAIN_FILE=<ndk>/build/cmake/android.toolchain.cmake -DANDROID_ABI=arm64-v8a \
       -DANDROID_PLATFORM=android-29 -DGAME=<base game title ID> [-DDM_TESTS=ON]
-ninja -C <build> dmhost_app nxloader dmhost_cli   # libdmhost_<id>.so (the game's host in the app), libnxloader.so and dmhost (a command-line host for adb shell)
+ninja -C <build> dmhost_app nxloader dmhost_cli   # libdmhost.so (the generic host in the app), libnxloader.so and dmhost (a command-line host for adb shell)
 python dm/android/tests/selftest_nso.py <ndk clang> <ndk llvm-objcopy> <dir>/main.nso
 DM_TARGET=android DM_GAME=<id> python dm/tools/patch_nso.py <dir>/main.nso <dir>/patched main
-python dm/android/tools/build_apk.py --sdk <sdk> --loader <build>/libnxloader.so --so <build>/libdmhost_<id>.so [--so <another game's host> ...]       --selftest <dir>/patched --keystore ~/.android/nxnative-debug.jks -o nxnative.apk
+python dm/android/tools/build_apk.py --sdk <sdk> --loader <build>/libnxloader.so --host <build>/libdmhost.so       --selftest <dir>/patched --keystore ~/.android/nxnative-debug.jks -o nxnative.apk
 ```
 
 On Windows, Git Bash rewrites `/data/...` arguments: set `MSYS_NO_PATHCONV=1` for adb only (it breaks native tools' paths).

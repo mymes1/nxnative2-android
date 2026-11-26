@@ -1,5 +1,5 @@
 // Android front end (NativeActivity, libdmhost.so): the app's window, input, lifecycle and log, around the host's main() (main.c).
-//   This library is one game's host, libdmhost_<title ID>.so, started by the loader (loader.c) for the game the launcher picked (java Launcher.java).
+//   This library is the one generic game host, libdmhost.so, started by the loader (loader.c) for the game the launcher picked (java Launcher.java).
 //   Game files: <external files>/games/<title ID>/ — code/ (the modules rewritten with DM_TARGET=android: <name>.patched.bin, .fixups.tsv, .gates.tsv ...),
 //   RomFS/ or RomFS.img, optionally aoc/, and launcher.txt (the settings screen's choices); switches for every game in <external files>/env.txt (KEY=VALUE per line,
 //   as the iPhone's Documents/env.txt). Save data stays in the app's internal storage, a folder per game (saves/<title ID>), and so does the driver's pipeline cache

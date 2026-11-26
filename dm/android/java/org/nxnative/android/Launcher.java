@@ -1,7 +1,8 @@
 // The launcher: the app's entry activity. First the games on the phone, then a game's settings screen (Android's counterpart of the iOS launcher,
 // dm/ios/Sources/Launcher.swift; the player's page is docs/settings.md), then the game.
-//   Games: <external files>/games/<title ID>/, copied by scripts/build_android_from_nsp.py (icon.jpg and control.nacp give the icon, name and version). The APK carries a
-//   host per game packed on the computer, lib/arm64-v8a/libdmhost_<title ID>.so: a folder whose host this APK lacks is listed as needing an app update.
+//   Games: <external files>/games/<title ID>/, copied by scripts/build_android_from_nsp.py (icon.jpg and control.nacp give the icon, name and version). The APK
+//   carries ONE generic game host, lib/arm64-v8a/libdmhost.so (loader.c): it reads the game's profile from the game's folder at run time (game_profile_rt.c),
+//   so every game on the phone runs with this one host — no per-game host, no app update to run a new game.
 //   Settings: the host's settings for that game, grouped into Game and Controls. Play writes the choices to the game's launcher.txt (KEY=VALUE per line) and starts the
 //   NativeActivity with the game's title ID (intent extra "game", read by loader.c), which reads that file after env.txt without overriding it (front_android.c
 //   env_file): a key env.txt sets is shown greyed out with its value. The choices are kept in SharedPreferences, per game. Defaults: the setting's own, or the game's
@@ -107,8 +108,8 @@ public class Launcher extends Activity {
     @Override protected void onNewIntent(Intent i) { super.onNewIntent(i); setIntent(i); opened(i); }
     void opened(Intent i) {
         String id = i != null ? i.getStringExtra("game") : null; if (id == null) return;
-        for (Game g : scan()) if (g.id.equalsIgnoreCase(id) && g.hosted) { showSettings(g); if (i.getBooleanExtra("play", false)) play(); return; }
-        toast("The game " + id + " is not on this phone, or this app has no host for it");
+        for (Game g : scan()) if (g.id.equalsIgnoreCase(id)) { showSettings(g); if (i.getBooleanExtra("play", false)) play(); return; }
+        toast("The game " + id + " is not on this phone");
     }
 
     @Override public void onBackPressed() { if (game != null) showGames(); else super.onBackPressed(); }
@@ -123,7 +124,7 @@ public class Launcher extends Activity {
             if (!d.isDirectory() || !d.getName().matches("[0-9A-Fa-f]{16}")) continue;
             if (!new File(d, "code/main.fixups.tsv").exists()) continue;
             Game g = new Game(); g.id = d.getName().toUpperCase(Locale.ROOT); g.dir = d; g.nacp = readAll(new File(d, "control.nacp"));
-            g.name = title(g.nacp, g.id); g.version = displayVersion(g.nacp); g.hosted = new File(libs, "libdmhost_" + g.id + ".so").exists();
+            g.name = title(g.nacp, g.id); g.version = displayVersion(g.nacp); g.hosted = new File(libs, "libdmhost.so").exists();   // the one generic host runs every game
             File img = new File(d, "RomFS.img"); g.bytes = img.length();
             out.add(g);
         }
@@ -157,7 +158,7 @@ public class Launcher extends Activity {
         if (gs.isEmpty()) {
             LinearLayout empty = new LinearLayout(this); empty.setOrientation(LinearLayout.VERTICAL); empty.setGravity(Gravity.CENTER_VERTICAL);
             TextView h = text("No games on this phone yet", 22, TEXT, 700); h.setLetterSpacing(-0.02f); empty.addView(h);
-            TextView t = text("Pack one on your computer with the nxnative desktop app: it copies the game here and updates this app.", 14, TEXT2, 400);
+            TextView t = text("Port a game here on the phone: the app reads its files from a game card or a file, rewrites its modules and packs them into the game's folder.", 14, TEXT2, 400);
             t.setPadding(0, px(8), 0, px(20)); t.setLineSpacing(0, 1.3f); t.setMaxWidth(px(440)); empty.addView(t);
             TextView st = pill("Run the self test", LIFT, TEXT);
             st.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { selftest(); } });
@@ -181,14 +182,12 @@ public class Launcher extends Activity {
         LinearLayout t = new LinearLayout(this); t.setOrientation(LinearLayout.VERTICAL);
         t.addView(art(g, 22), new LinearLayout.LayoutParams(px(cover), px(cover)));
         if (!g.hosted) t.getChildAt(0).setAlpha(0.45f);
-        TextView n = text(g.name, 15, g.hosted ? TEXT : TEXT2, 500); n.setMaxLines(2); n.setEllipsize(android.text.TextUtils.TruncateAt.END); n.setPadding(0, px(12), 0, px(3));
+        TextView n = text(g.name, 15, TEXT, 500); n.setMaxLines(2); n.setEllipsize(android.text.TextUtils.TruncateAt.END); n.setPadding(0, px(12), 0, px(3));
         t.addView(n);
-        String sub = g.hosted ? (g.version != null ? g.version + " · " : "") + String.format(Locale.ROOT, "%.1f GB", g.bytes / 1073741824.0) : "Update the app from your computer";
-        TextView s = text(sub, 12, g.hosted ? TEXT2 : BUILD, 400); s.setFontFeatureSettings("tnum"); t.addView(s);
+        String sub = (g.version != null ? g.version + " · " : "") + String.format(Locale.ROOT, "%.1f GB", g.bytes / 1073741824.0);
+        TextView s = text(sub, 12, TEXT2, 400); s.setFontFeatureSettings("tnum"); t.addView(s);
         press(t);
-        t.setOnClickListener(new View.OnClickListener() { public void onClick(View v) {
-            if (!g.hosted) { toast(g.name + ": this app has no host for it yet (libdmhost_" + g.id + ".so). Update the app from the computer."); return; }
-            showSettings(g); } });
+        t.setOnClickListener(new View.OnClickListener() { public void onClick(View v) { showSettings(g); } });
         return t;
     }
     String nameOf(String id) { for (Game g : scan()) if (g.id.equalsIgnoreCase(id)) return g.name; return id; }
@@ -382,9 +381,9 @@ public class Launcher extends Activity {
         }
         ActivityManager.RunningAppProcessInfo p = gameProcess(); if (p != null) android.os.Process.killProcess(p.pid);
     }
-    List<String> hosts() {   // the games this APK has a host for
-        List<String> out = new ArrayList<>(); File[] fs = new File(getApplicationInfo().nativeLibraryDir).listFiles(); if (fs == null) return out;
-        for (File f : fs) { String n = f.getName(); if (n.startsWith("libdmhost_") && n.endsWith(".so")) out.add(n.substring(10, n.length() - 3)); }
+    List<String> hosts() {   // the games this APK can run: every game folder has a profile the generic host reads
+        List<String> out = new ArrayList<>(); File[] fs = games.listFiles(); if (fs == null) return out;
+        for (File f : fs) if (f.isDirectory() && f.getName().matches("[0-9A-Fa-f]{16}") && new File(f, "code/main.fixups.tsv").exists()) out.add(f.getName().toUpperCase(Locale.ROOT));
         return out;
     }
 

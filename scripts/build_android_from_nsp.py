@@ -1,7 +1,7 @@
 # Pack a Switch game you own for Android: your NSP / XCI files and your prod.keys in, the nxnative app and the game files on the phone out.
 #   python scripts/build_android_from_nsp.py <NSP folder> -k <prod.keys> [-p <version>] [-l <language>] [--serial <adb device>] [--no-push]
 #   python scripts/build_android_from_nsp.py <NSP folder> -k <prod.keys> --push-only [--serial ...]   install the app and copy a game built before, without building
-#   python scripts/build_android_from_nsp.py --apk-only [--serial ...]                                  the app with every game host built on this computer, installed
+#   python scripts/build_android_from_nsp.py --apk-only [--serial ...]                                  the app with the generic host built on this computer, installed
 #   python scripts/build_android_from_nsp.py --migrate --title <title ID> [--serial ...]               a one-game install's folder (files/game) into files/games/<title ID>
 #   python scripts/build_android_from_nsp.py --check | --info <NSP folder>                              requirements / the game's details, as JSON (the desktop app)
 #   --progress json: newline-delimited JSON events on stdout (build_ipa_from_nsp.py Progress), for the desktop app (scripts/nxnative_android.py)
@@ -19,7 +19,7 @@
 #   2. extract the version to pack (the newest in the folder, or -p) with nx_extract (built with dotnet)
 #   3. rewrite the code modules for Android (dm/tools/patch_nso.py with DM_TARGET=android) into <id>_build/patched_android_<version>/
 #   (the shaders: split as for iOS, translated to SPIR-V for the Vulkan replay by dm/android/tools/spv_build.py)
-#   4. build the game's host (dm/android, CMake + the NDK), the loader and the self test into the library, and pack the APK (dm/android/tools/build_apk.py) into <data>,
+#   4. build the generic host (dm/android, CMake + the NDK) — one libdmhost.so for every game — with the loader and the self test into the library, and pack the APK (dm/android/tools/build_apk.py) into <data>,
 #      signed with ~/.android/nxnative-debug.jks (made on first use; every later build must use it to update the app); the button-icon font (make_ext_font.py)
 #   5. unless --no-push: install the APK with adb (an update: the app's data, saves included, stay) and copy the rewritten modules, the RomFS (the extraction's
 #      RomFS.img), any DLC and the translated shaders to files/games/<title ID>/, with its icon, control data, default game language (defaults.txt) and game.json.
@@ -545,7 +545,7 @@ def main(argv):
     ap.add_argument('--register', action='store_true', help='complete a surveyed game\'s profile: after the build, promote the provisional profile into dm/games/<id>/ (game.tsv + the shader tables), so the game is registered and later builds check its tables')
     ap.add_argument('--push-only', action='store_true', help='install the app and copy a game built before to the phone, without building')
     ap.add_argument('--update-shaders', action='store_true', help='pull the shaders a game compiled at run time on the phone, translate the new ones and copy them (no app build)')
-    ap.add_argument('--apk-only', action='store_true', help='pack the app with every game host built on this computer and install it')
+    ap.add_argument('--apk-only', action='store_true', help='pack the app with the generic host built on this computer and install it')
     ap.add_argument('--migrate', action='store_true', help="move a one-game install's files/game to files/games/<--title> on the phone")
     ap.add_argument('--title', help='the title ID for --migrate')
     ap.add_argument('--check', action='store_true', help='print the requirements as JSON and stop')

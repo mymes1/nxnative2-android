@@ -2,7 +2,7 @@
 # Android front end and graphics backend. Two products from one set of objects, and the app's loader:
 #   libdmhost.so         the GENERIC game host in the app: one host runs every game. The game profile is read at run time from the game's
 #                        folder (game_profile_rt.c: <dir>/profile.txt), not compiled in, so the phone can port a game on the device and run
-#                        the resulting pack with this one host (scripts/build_android_from_nsp.py's per-game libdmhost_<GAME>.so is gone).
+#                        the resulting pack with this one host (no per-game libdmhost_<GAME>.so: one host runs every game).
 #   dmhost               a command-line host for adb shell (headless: no window, silent audio unless DM_AUDIO=1), like the Mac's dmhost
 #   libnxloader.so       the NativeActivity's library: starts the host for the game the launcher picked (loader.c)
 # Configure with the NDK's toolchain file. GAME is accepted for the shader/profile tools but no longer selects a compiled-in profile:

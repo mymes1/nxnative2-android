@@ -17,19 +17,21 @@ def convert(text):
         code = re.sub(r'\b(\w+)@PAGE\b', r'\1', code)
         code = code.replace('.private_extern', '.hidden')
         code = re.sub(r'^(\s*)\.cstring\b', r'\1.section .rodata.str1.1,"aMS",@progbits,1', code)
-        # Mach-O .zerofill <seg>,<sec>,<sym>,<size>,<align>: zero-filled bss for a symbol. ELF: a .bss
-        # section holding the symbol, aligned, with .zero for the size, then back to .text.
+        # Mach-O .zerofill <seg>,<sec>,<sym>,<size>,<align>: zero-filled bss for a symbol. ELF: the
+        # .bss section holding the symbol, aligned, with .zero for the size, then back to .text.
         # The symbol is aligned to a page (4096): entry.S's gate stubs reach it with adrp + an
         # immediate offset alone, which requires the symbol at offset 0 of its page (the source's
         # alignment argument is not page-aligned; the comment there says "Page-aligned").
+        # Plain .bss / .text (not .section .bss,"aw",@progbits): the latter makes LLVM type the
+        # section PROGBITS and it errors "changed section type for .bss, expected: 0x8" (NOBITS).
         m = re.match(r'^([ \t]*)\.zerofill[ \t]+[^,]+,[^,]+,([^,]+),(\d+),(\d+)', code)
         if m:
             ind, sym, size = m.group(1), m.group(2), m.group(3)
-            code = (f'{ind}.section .bss,"aw",@progbits\n'
+            code = (f'{ind}.bss\n'
                     f'{ind}.balign 4096\n'
                     f'{ind}{sym}:\n'
                     f'{ind}.zero {size}\n'
-                    f'{ind}.section .text,"ax",@progbits')
+                    f'{ind}.text')
         out.append(code + sep + comment)
         g = re.match(r'\s*\.globl\s+(\w+)', code)
         if g: out.append(f'    .hidden {g.group(1)}')
